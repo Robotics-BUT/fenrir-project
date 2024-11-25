@@ -6,7 +6,15 @@ The Fenrir Project is an open source of a multi purpose education robot dedicate
 
 ## Robot Overview
 
-<img src="./media/render.png" width="200">
+Robot visualization 
+
+<img src="./media/render.png" width="300">
+
+
+Overview schematics
+
+<img src="./media/scheme-overview.png" width="300">
+
 
 ## Authors
 
