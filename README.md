@@ -15,9 +15,13 @@ Robot visualization
 <img src="./media/render.png" width="300">
 
 
-Overview schematics
+Overview schematic
 
 <img src="./media/scheme-overview.png" width="300">
+
+Power supply schematic
+
+<img src="./media/scheme-power-supply.png" width="300">
 
 
 ## Authors
