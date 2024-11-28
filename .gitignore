@@ -3,4 +3,4 @@
 **/*-backups/
 **/*.kicad_prl
 **/fp-info-cache
-
+**/*.kicad_pcb.lck
