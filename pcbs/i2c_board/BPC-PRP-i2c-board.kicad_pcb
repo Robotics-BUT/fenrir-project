@@ -4863,7 +4863,7 @@
 			(justify left bottom)
 		)
 	)
-	(gr_text "I2C Sensor Board\nv1.5.0\nAdam Ligocki\n2024\n"
+	(gr_text "I2C Sensor Board\nv1.5.1\nAdam Ligocki\n28.11.2024\n"
 		(at 127.8 129.4 0)
 		(layer "F.SilkS")
 		(uuid "a73bb144-1938-471c-8db7-ef5589fef23c")
