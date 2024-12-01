@@ -23,6 +23,10 @@ Power supply schematic
 
 <img src="./media/scheme-power-supply.png" width="300">
 
+Wiring
+
+<img src="./media/scheme-wiring.png" width="300" align="center">
+
 
 ## Authors
 
