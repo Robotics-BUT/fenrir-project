@@ -25,7 +25,7 @@ Power supply schematic
 
 Wiring
 
-<img src="./media/scheme-wiring.png" width="300" align="center">
+<img src="./media/scheme-wiring.png" width="300">
 
 
 ## Authors
