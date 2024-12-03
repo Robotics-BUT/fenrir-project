@@ -19,6 +19,7 @@ Run RPi-Imager
 ```
 rpi-imager
 ```
+
 <img src="../images/rpi_install_imager.png" width="300">
 
 Select Device (Raspberry Pi 4)
