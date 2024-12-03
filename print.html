@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="title-page.html">Introduction</a></li><li class="chapter-item expanded "><a href="chapter_2/text/intro.html"><strong aria-hidden="true">1.</strong> Robot Assembly and Electronics</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_2/text/assembly.html"><strong aria-hidden="true">1.1.</strong> Lab 1 - Introduction &amp; Linux Installation</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_2/text/intro.html"><strong aria-hidden="true">2.</strong> SW Installation and Setup</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_2/text/1_rpi.html"><strong aria-hidden="true">2.1.</strong> Raspberry Pi Installation</a></li><li class="chapter-item expanded "><a href="chapter_2/text/2_arduino.html"><strong aria-hidden="true">2.2.</strong> Arduino Programming</a></li></ol></li></ol>            </div>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="title-page.html">Introduction</a></li><li class="chapter-item expanded "><a href="chapter_1/text/intro.html"><strong aria-hidden="true">1.</strong> Robot Assembly and Electronics</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_1/text/assembly.html"><strong aria-hidden="true">1.1.</strong> Lab 1 - Introduction &amp; Linux Installation</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_2/text/intro.html"><strong aria-hidden="true">2.</strong> SW Installation and Setup</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_2/text/1_rpi.html"><strong aria-hidden="true">2.1.</strong> Raspberry Pi Installation</a></li><li class="chapter-item expanded "><a href="chapter_2/text/2_arduino.html"><strong aria-hidden="true">2.2.</strong> Arduino Programming</a></li></ol></li></ol>            </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
@@ -150,10 +150,11 @@
 <li>Ing. Adam Ligocki, Ph.D.</li>
 <li>...</li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-2"><a class="header" href="#chapter-2">Chapter 2</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-1"><a class="header" href="#chapter-1">Chapter 1</a></h1>
 <p>Lorem Ipsum</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="lab-1---introduction--linux-installation"><a class="header" href="#lab-1---introduction--linux-installation">Lab 1 - Introduction &amp; Linux Installation</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-2-1"><a class="header" href="#chapter-2-1">Chapter 2</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="robot-assembly"><a class="header" href="#robot-assembly">Robot Assembly</a></h1>
+<p>Lorem Ipsum</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-2"><a class="header" href="#chapter-2">Chapter 2</a></h1>
 <p>Lorem Ipsum</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rpi-installation"><a class="header" href="#rpi-installation">RPi Installation</a></h1>
 <h2 id="required-hw"><a class="header" href="#required-hw">Required HW</a></h2>
@@ -244,10 +245,22 @@ ros2 topic list
 <h2 id="hw-required"><a class="header" href="#hw-required">HW Required</a></h2>
 <ul>
 <li>Host PC with Arduino Studio IDE installed <a href="https://www.arduino.cc/en/software">see here</a>.</li>
-<li>Arduino Nano (Original or clone)</li>
+<li>Arduino Nano &quot;Every&quot; (Original or clone, Every need for more external interrupts)</li>
 <li>USB cable to connect Arduino with PC</li>
 <li>Arduino PCB for Fenrir Project</li>
 </ul>
+<h2 id="programming"><a class="header" href="#programming">Programming</a></h2>
+<p>Open the <code>software/arduino_nano/main/main.ino</code> file in the Arduino IDE.</p>
+<img src="chapter_2/text/../images/arduino_ide.png" width="300">
+<p>Connect the Arduino Every to the </p>
+<img src="chapter_2/text/../images/arduino_select_mcu.png" width="300">
+<p>Try to build the firmware using the &quot;Verify&quot; button in left top.</p>
+<img src="chapter_2/text/../images/arduino_build.png" width="300">
+<p>If build goes ok, try to upload the firmware using the &quot;Upload&quot; button in left top.</p>
+<img src="chapter_2/text/../images/arduino_uploading.png" width="300">
+<p>Using the <code>ctrl+shift+M</code> open terminal and check if microcontroller communicates.</p>
+<h2 id="program-description"><a class="header" href="#program-description">Program Description</a></h2>
+<p>... TODO ...</p>
 
                     </main>
 
