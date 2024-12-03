@@ -1,0 +1,6 @@
+[book]
+authors = ["Adam Ligocki"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Fenrir Project - Universal Robotic Platform"
