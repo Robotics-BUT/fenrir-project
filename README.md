@@ -12,20 +12,28 @@ The development is currently still under development
 
 ### Robot visualization 
 
-<img src="./media/render.png" width="300">
-
+![Robot](./media/render.png)
 
 ### Overview schematic
 
-<img src="./media/scheme-overview.png" width="300">
+![Overview schematic](./media/scheme-overview.png)
 
 ### Power supply schematic
 
-<img src="./media/scheme-power-supply.png" width="300">
+![Power supply schematic](./media/scheme-power-supply.png)
 
 ### Wiring Overview
 
-<img src="./media/scheme-wiring.png" width="300">
+
+![Wiring Overview](./media/scheme-wiring.png)
+
+
+
+**Note**: The sensors numbering goes from left to right
+ - Ultrasound 1 - left, Ultrasound 2 - center, Ultrasound 3 - right
+ - Line sensor 1 - left, Line sensor 2 - right
+ - Motor 1 - left, Motor 2 - right
+ - Encoder 1 - left, Encoder 2 - right
 
 | **Module A**       | **Pin**  | **Module B**        | **Pin**        | **Type**              | **Length** | **Note** |
 |--------------------|----------|---------------------|----------------|-----------------------|------------|----------|
