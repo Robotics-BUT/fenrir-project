@@ -1,6 +1,0 @@
-# ninja log v6
-3	574	1719945816989172861	build.ninja	a974dcc55e5f9faa
-4	3998	1719945091713512371	CMakeFiles/camera_handler_cpp.dir/src/main.cpp.o	aab4cd69b770b352
-3998	4283	1719945095705567700	camera_handler_cpp	a7a80618d9bbcd7a
-5	3164	1719946023079795907	CMakeFiles/camera_handler_cpp.dir/src/main.cpp.o	7dfa08ba499bdbbc
-3165	3413	1719946026235887675	camera_handler_cpp	70cff0085d15f92b

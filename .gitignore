@@ -9,3 +9,6 @@
 **/*.kicad_sch.lck
 
 **/*.md.backup
+
+**/cmake-*/
+**/*.pyc
