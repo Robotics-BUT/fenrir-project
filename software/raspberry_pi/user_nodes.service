@@ -1,0 +1,14 @@
+[Unit]
+Description=BPC-PRP User Nodes Launcher
+After=network.target
+
+[Service]
+Environment="ROS_DOMAIN_ID=0"
+ExecStart=/usr/bin/bash -c 'source /opt/ros/humble/setup.bash; source /home/rpi/bpc-prp-devel/raspberry_pi_sw/ros2_ws/install/setup.bash; ros2 launch launch/user_nodes.launch.py'
+WorkingDirectory=/home/rpi/bpc-prp-devel/raspberry_pi_sw/ros2_ws
+User=rpi
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

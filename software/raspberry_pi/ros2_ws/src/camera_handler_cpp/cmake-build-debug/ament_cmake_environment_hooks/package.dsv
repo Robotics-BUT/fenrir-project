@@ -1,0 +1,4 @@
+source;share/camera_handler_cpp/local_setup.bash
+source;share/camera_handler_cpp/local_setup.dsv
+source;share/camera_handler_cpp/local_setup.sh
+source;share/camera_handler_cpp/local_setup.zsh

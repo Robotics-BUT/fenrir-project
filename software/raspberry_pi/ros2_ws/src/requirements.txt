@@ -1,0 +1,5 @@
+
+board
+adafruit-circuitpython-neopixel
+adafruit-circuitpython-bme280
+RPi.GPIO

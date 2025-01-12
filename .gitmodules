@@ -1,0 +1,3 @@
+[submodule "software/raspberry_pi/ros2_ws/src/rplidar"]
+	path = software/raspberry_pi/ros2_ws/src/rplidar
+	url = https://github.com/Slamtec/rplidar_ros.git
