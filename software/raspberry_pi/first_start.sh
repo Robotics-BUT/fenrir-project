@@ -13,7 +13,8 @@ echo "#[all]
 
 # disable boot ethernet timeout
 sudo systemctl disable systemd-networkd-wait-online.service 
-
+#set legacy mode for camera
+sudo raspi-config nonint do_legacy 0 
 
 # add user to video group 
 sudo usermod -aG video $USER
