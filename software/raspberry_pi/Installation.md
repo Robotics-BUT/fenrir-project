@@ -16,5 +16,5 @@ Script will:
 - build ROS2 packages
 - add services to system
 
-
+System needs to be configured for user "robot" otherwise some paths, especialy in services, needs to be altered.
 
