@@ -31,7 +31,7 @@ from .arduino import *
 
 ENABLE_ARDUINO = True
 ENABLE_BME280 = False
-ENABLE_IMU = True
+ENABLE_IMU = False
 ENABLE_MAG = False
 ENABLE_ADC = False
 ENABLE_RTC = False

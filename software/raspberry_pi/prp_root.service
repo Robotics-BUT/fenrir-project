@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Environment="ROS_DOMAIN_ID=0"
-ExecStart=/usr/bin/bash -c 'source /opt/ros/humble/setup.bash; source /home/robot/fenrir-project/software/raspberry_pi/ros2_wsinstall/setup.bash; ros2 launch launch/root_nodes.launch.py'
+ExecStart=/usr/bin/bash -c 'source /opt/ros/humble/setup.bash; source /home/robot/fenrir-project/software/raspberry_pi/ros2_ws/install/setup.bash; ros2 launch launch/root_nodes.launch.py'
 WorkingDirectory=/home/robot/fenrir-project/software/raspberry_pi/ros2_ws
 User=root
 Restart=on-failure

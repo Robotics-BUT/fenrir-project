@@ -9,12 +9,13 @@ sudo apt-get install -y \
 	wiringpi v4l-utils i2c-tools \
 	gstreamer1.0-tools gstreamer1.0-plugins-base \
 	gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
-	gstreamer1.0-plugins-ugly
+	gstreamer1.0-plugins-ugly \
+	python3-rpi.gpio
 
 #Python packages
 sudo apt-get install -y python3-pip
 sudo pip3 install rpi_ws281x \
-	adafruit-blink \
+	adafruit-blinka \
 	adafruit-circuitpython-neopixel \
 	adafruit-circuitpython-bme280 \
 	adafruit-circuitpython-ads1x15 \
@@ -24,7 +25,7 @@ sudo pip3 install rpi_ws281x \
 
 
 
-##INSTALL ROS2	
+##INSTALL ROS2
 #configure locale
 sudo locale-gen en_US en_US.UTF-8
 sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
@@ -43,6 +44,8 @@ curl -s https://packagecloud.io/install/repositories/dirk-thomas/colcon/script.d
 sudo apt-get install -y python3-colcon-common-extensions
 
 source /opt/ros/humble/setup.bash
+echo "source /opt/ros/humble/setup.bash" >> /home/robot/.bashrc
+echo "export ROS_DOMAIN_ID=0" >> /home/robot/.bashrc
 
 #colcon
 curl -s https://packagecloud.io/install/repositories/dirk-thomas/colcon/script.deb.sh | sudo bash
@@ -62,5 +65,5 @@ source /home/robot/fenrir-project/software/raspberry_pi/ros2_ws/install/setup.ba
 
 
 ###adding service
-sudo cp prp_root.service /etc/systemd/system/prp_root.service
-sudo cp prp_user.servise /etc/systemd/system/prp_user.service
+sudo cp ../prp_root.service /etc/systemd/system/prp_root.service
+sudo cp ../prp_user.service /etc/systemd/system/prp_user.service
