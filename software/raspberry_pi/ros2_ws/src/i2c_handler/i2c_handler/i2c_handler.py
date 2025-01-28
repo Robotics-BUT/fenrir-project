@@ -168,15 +168,15 @@ class I2cHandlerNode(Node):
 
     def on_mag(self):
         try:
-	    mag_msg = MagneticField()
-	    mag_msg.header.frame_id = self.frame
-	    mag_msg.header.stamp = self.get_clock().now().to_msg()
-	    mag_msg.magnetic_field.x = 0.0
-	    mag_msg.magnetic_field.y = 0.0
-	    mag_msg.magnetic_field.z = 0.0
-	    self.mag_publisher.publish(mag_msg)
-	    if VERBOSE:
-	        print('Mag:', mag_msg)
+            mag_msg = MagneticField()
+            mag_msg.header.frame_id = self.frame
+            mag_msg.header.stamp = self.get_clock().now().to_msg()
+            mag_msg.magnetic_field.x = 0.0
+            mag_msg.magnetic_field.y = 0.0
+            mag_msg.magnetic_field.z = 0.0
+            self.mag_publisher.publish(mag_msg)
+            if VERBOSE:
+                print('Mag:', mag_msg)
 	        
         except ValueError as e:
             print(f"Unable to communicate with the Magnetometer. {e}")
