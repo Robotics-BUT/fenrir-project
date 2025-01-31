@@ -67,3 +67,7 @@ source /home/robot/fenrir-project/software/raspberry_pi/ros2_ws/install/setup.ba
 ###adding service
 sudo cp ../prp_root.service /etc/systemd/system/prp_root.service
 sudo cp ../prp_user.service /etc/systemd/system/prp_user.service
+
+###enabling services after startup
+sudo systemctl enable prp_root.service
+sudo systemctl enable prp_user.service
