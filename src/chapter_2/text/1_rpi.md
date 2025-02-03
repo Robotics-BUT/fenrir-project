@@ -8,6 +8,7 @@
 
 ## Installation
 
+
 Install RPi-Imager on your Linux PC
 
 ```
@@ -26,7 +27,7 @@ Select Device (Raspberry Pi 4)
 
 <img src="../images/rpi_install_select_device.png" width="300">
 
-Select OS (Others General Purpose OS -> Ubuntu -> Ubuntu Server 24.04.1 LTS (64b))
+Select OS - Others General Purpose OS -> Ubuntu -> Ubuntu Server 22.04.5 LTS (64b)
 
 <img src="../images/rpi_install_select_os_1.png" width="300">
 
@@ -58,75 +59,99 @@ In case of problems, please visit [Official Documentation](https://www.raspberry
 
 ## OS Configuration
 
-Connect to the raspberry pi
+Connect to the Raspberry Pi
 
 ```
 ssh <user>@<ip_address>
 ```
 
-Install basics
-
+Run first installation script and reboot afterwards. The script may require user input for confirmation on restarting services
 ```
-sudo apt update
-sudo apt install -y git vim raspi-config htop locales software-properties-common curl libopencv-dev build-essential wiringpi v4l-utils i2c-tools
-sudo apt install -y gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly
+sudo bash first_start.sh
+sudo reboot now
 ```
 
-Optional: Add swap space if RAM is too small (4GB and less)
+The script will:
+- run system update and upgrade some system packages
+- modify the boot firmware config
+- create a swapfile (can be removed on systems with more RAM)
+- add the user to following groups - `video`, `tty`, `dialout`
+- disable the boot Ethernet timeout
 
+After rebooting the system, run the second script.
 ```
-sudo fallocate -l 4G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
-
-# check system
-htop 
+sudo bash installation.sh
 ```
+The script will:
+- update system and install necessary packages
+- install Python packages
+- install ROS 2 and Colcon
+- clone `fenrir-project` repository
+- build ROS 2 packages
+- add services to the system and enable them at startup
 
-Install ROS2
 
+If user name is different then "robot", paths in scripts and service files need to be changed, along with the user for one of services.
 ```
-locale
-sudo locale-gen en_US en_US.UTF-8
-sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
-export LANG=en_US.UTF-8
-locale  # verify settings
-
-#ros
-sudo apt install -y software-properties-common
-sudo add-apt-repository universe
-sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
-
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-
-sudo apt update
-sudo apt install -y ros-jazzy-ros-base ros-jazzy-cv-bridge ros-jazzy-image-transport
-
-# Colcon
-curl -s https://packagecloud.io/install/repositories/dirk-thomas/colcon/script.deb.sh | sudo bash
-sudo apt install -y python3-colcon-common-extensions
+#in repository
+fenrir-project/software/raspberry_pi/prp_root.service 
+fenrir-project/software/raspberry_pi/prp_user.service 
+#or after install
+/etc/systemd/system/prp_root.service
+/etc/systemd/system/prp_user.service
 ```
+The `ROS_DOMAIN_ID` can be changed in the `*.service` files or optionally in `~/.bashrc`.
 
-Install Python tools and dependences
-
+## Starting services
+Start the necessary services for ROS 2 nodes:
 ```
-# Python-pip
-sudo apt install -y python3-pip
-
-# Dependences
-pip3 install board rpi_ws281x adafruit-circuitpython-neopixel adafruit-circuitpython-bme280 adafruit-circuitpython-ads1x15 adafruit-circuitpython-mpu6050 adafruit-circuitpython-ds3231 RPLCD smbus2 pynmea2 --break-system-packages 
+sudo systemctl start prp_root.service
+sudo systemctl start prp_user.service
 ```
 
-Now the system is installed.
+# Cloning SD card
+### Prequisitions: 
+- Linux OS
+- SD card reader
+- A SD card with configured system
+- An empty SD card of the same size
 
-Try to run some ROS2 command.
 
+```bash
+# Insert the SD card with the existing system
+lsblk # Identify the SD card and its partitions (e.g., /dev/sdc1 and /dev/sdc2)
+
+# Unmout the SD card
+sudo umount /dev/sdc*
+
+# Create an image of the SD card with the system
+sudo dd if=/dev/sdc of=~/Documents/prp/robot.img bs=4M status=progress  
+sudo eject /dev/sdc
+
+# Swap the SD card with an empty one
+lsblk # Identify SD card and its partitions (e.g., /dev/sdc1 and /dev/sdc2)
+sudo dd if=~/Documents/prp/robot.img of=/dev/sdc bs=4M status=progress # apply image to the SD card
+sudo sync
+
+# Mount the SD card's partitions
+sudo mkdir /media/jakub/card1
+sudo mount /dev/sdc1 /media/jakub/card1
+sudo mkdir /media/jakub/card2
+sudo mount /dev/sdc2 /media/jakub/card2
+
+# Replace the old hostname for new one
+sudo sed -i 's/prp-red/prp-green/g' /media/jakub/card1/user-data /media/jakub/card2/etc/hostname /media/jakub/card2/etc/hosts
+
+# Unmount SD card and remove created folders
+sudo umount /media/jakub/card1
+sudo umount /media/jakub/card2
+sudo rmdir /media/jakub/card1/
+sudo rmdir /media/jakub/card2/
 ```
-source /opt/ros/jazzy/setup.bash    # loads ros environment
-ros2 topic list
+
+`ROS_DOMAIN_ID` can be rewritten in files:
 ```
-
-## Setting Up Robot SW
-
-TODO ...
+~/.bashrc
+/etc/systemd/system/prp_user.service
+/etc/systemd/system/prp_root.service
+```
