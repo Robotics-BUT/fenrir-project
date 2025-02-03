@@ -1,20 +1,21 @@
+On the first start, run `first_start.sh`.
+The script will:
+- run a system update and upgrade some system packages
+- modify the boot firmware config
+- create a swapfile
+- add the user to the following groups - video, tty, dialout
+- disable the boot ethernet timeout
 
-On first start run `first_start.sh`
-Script will:
-- run system update and upgrade some system packages
-- modify boot firmware config
-- create swapfile
-- add user to groups - video, tty, dialout
-- disable boot ethernet timeout
-System needs to be rebooted after.
-After reboot run `install.sh`
-Script will:
-- update system and install packages
+The system needs to be rebooted after this steps.
+
+After rebooting, run `install.sh`
+The script will:
+- update the system and install required packages
 - install python packages
-- install ROS 2 and colcon
+- install ROS 2 and Colcon
 - clone this repository
 - build ROS2 packages
-- add services to system and enable them at startup
+- add services to the system and enable them at startup
 
-System need to be configured for user "robot" otherwise some paths, especially in services, needs to be altered.
+The system must be configured for the user "robot", otherwise some paths, especially in service files, need to be altered.
 

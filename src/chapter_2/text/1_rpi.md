@@ -59,39 +59,39 @@ In case of problems, please visit [Official Documentation](https://www.raspberry
 
 ## OS Configuration
 
-Connect to the raspberry pi
+Connect to the Raspberry Pi
 
 ```
 ssh <user>@<ip_address>
 ```
 
-Run first installation script and reboot after, script may need user input for confirmation on restarting services
+Run first installation script and reboot afterwards. The script may require user input for confirmation on restarting services
 ```
 sudo bash first_start.sh
 sudo reboot now
 ```
 
-Script will:
+The script will:
 - run system update and upgrade some system packages
-- change boot firmware config
-- create swapfile - if system has bigger ram can be removed
-- add user to groups - video, tty, dialout
-- disable boot ethernet timeout
+- modify the boot firmware config
+- create a swapfile (can be removed on systems with more RAM)
+- add the user to following groups - `video`, `tty`, `dialout`
+- disable the boot Ethernet timeout
 
-
-After reboot of system run second script
+After rebooting the system, run the second script.
 ```
 sudo bash installation.sh
 ```
-Script will:
-- update system and install packages
-- install python packages
-- install ROS 2 and colcon
-- clone fenrir-project repository
-- build ROS2 packages
-- add services to system and enable them after startup
+The script will:
+- update system and install necessary packages
+- install Python packages
+- install ROS 2 and Colcon
+- clone `fenrir-project` repository
+- build ROS 2 packages
+- add services to the system and enable them at startup
 
-If user name is different then "robot" paths in scripts and service files needs to be change, also user for one of service. 
+
+If user name is different then "robot", paths in scripts and service files need to be changed, along with the user for one of services.
 ```
 #in repository
 fenrir-project/software/raspberry_pi/prp_root.service 
@@ -100,46 +100,56 @@ fenrir-project/software/raspberry_pi/prp_user.service
 /etc/systemd/system/prp_root.service
 /etc/systemd/system/prp_user.service
 ```
-ROS_DOMAIN_ID can be changed in the `*.service` files, optionaly also in `~/.bashrc`.
-
+The `ROS_DOMAIN_ID` can be changed in the `*.service` files or optionally in `~/.bashrc`.
 
 ## Starting services
-Start services for nodes
+Start the necessary services for ROS 2 nodes:
 ```
 sudo systemctl start prp_root.service
 sudo systemctl start prp_user.service
 ```
 
 # Cloning SD card
-Prequisitions: linux OS,SD card reader, SD card with configured system and same empty SD card.
+### Prequisitions: 
+- Linux OS
+- SD card reader
+- A SD card with configured system
+- An empty SD card of the same size
+
 
 ```bash
-#insert SD card with existing system
-lsblk #names of SD card and its partitions - in this example its /dev/sdc1 and /dev/sdc2
-sudo umount /dev/sdc* #unmout SD card
-sudo dd if=/dev/sdc of=~/Documents/prp/robot.img bs=4M status=progress  # create image of SD card with system
-sudo eject /dev/sdc
-#swap SD card with the empty one
-lsblk #names of SD card and its partitions - in this example its /dev/sdc1 and /dev/sdc2
-sudo dd if=~/Documents/prp/robot.img of=/dev/sdc bs=4M status=progress # apply image to SD card
-sudo sync #
+# Insert the SD card with the existing system
+lsblk # Identify the SD card and its partitions (e.g., /dev/sdc1 and /dev/sdc2)
 
-# Mount SD cards partitions
+# Unmout the SD card
+sudo umount /dev/sdc*
+
+# Create an image of the SD card with the system
+sudo dd if=/dev/sdc of=~/Documents/prp/robot.img bs=4M status=progress  
+sudo eject /dev/sdc
+
+# Swap the SD card with an empty one
+lsblk # Identify SD card and its partitions (e.g., /dev/sdc1 and /dev/sdc2)
+sudo dd if=~/Documents/prp/robot.img of=/dev/sdc bs=4M status=progress # apply image to the SD card
+sudo sync
+
+# Mount the SD card's partitions
 sudo mkdir /media/jakub/card1
 sudo mount /dev/sdc1 /media/jakub/card1
 sudo mkdir /media/jakub/card2
 sudo mount /dev/sdc2 /media/jakub/card2
-#Replace old hostname for new one
+
+# Replace the old hostname for new one
 sudo sed -i 's/prp-red/prp-green/g' /media/jakub/card1/user-data /media/jakub/card2/etc/hostname /media/jakub/card2/etc/hosts
 
-#unmount SD card and remove created folders
+# Unmount SD card and remove created folders
 sudo umount /media/jakub/card1
 sudo umount /media/jakub/card2
 sudo rmdir /media/jakub/card1/
 sudo rmdir /media/jakub/card2/
 ```
 
-ROS_DOMAIN_ID can be rewritten in files:
+`ROS_DOMAIN_ID` can be rewritten in files:
 ```
 ~/.bashrc
 /etc/systemd/system/prp_user.service
