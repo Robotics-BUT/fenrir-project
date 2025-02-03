@@ -160,7 +160,7 @@
 <img src="../images/rpi_install_imager.png" width="300">
 <p>Select Device (Raspberry Pi 4)</p>
 <img src="../images/rpi_install_select_device.png" width="300">
-<p>Select OS (Others General Purpose OS -&gt; Ubuntu -&gt; Ubuntu Server 24.04.1 LTS (64b))</p>
+<p>Select OS - Others General Purpose OS -&gt; Ubuntu -&gt; Ubuntu Server 22.04.5 LTS (64b)</p>
 <img src="../images/rpi_install_select_os_1.png" width="300">
 <img src="../images/rpi_install_select_os_2.png" width="300">
 <img src="../images/rpi_install_select_os_3.png" width="300">
@@ -176,58 +176,90 @@
 <p>Now put the SD card into the RPi and power on.</p>
 <p>In case of problems, please visit <a href="https://www.raspberrypi.com/documentation/computers/getting-started.html#install-using-imager">Official Documentation</a> </p>
 <h2 id="os-configuration"><a class="header" href="#os-configuration">OS Configuration</a></h2>
-<p>Connect to the raspberry pi</p>
+<p>Connect to the Raspberry Pi</p>
 <pre><code>ssh &lt;user&gt;@&lt;ip_address&gt;
 </code></pre>
-<p>Install basics</p>
-<pre><code>sudo apt update
-sudo apt install -y git vim raspi-config htop locales software-properties-common curl libopencv-dev build-essential wiringpi v4l-utils i2c-tools
-sudo apt install -y gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly
+<p>Run first installation script and reboot afterwards. The script may require user input for confirmation on restarting services</p>
+<pre><code>sudo bash first_start.sh
+sudo reboot now
 </code></pre>
-<p>Optional: Add swap space if RAM is too small (4GB and less)</p>
-<pre><code>sudo fallocate -l 4G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
-
-# check system
-htop 
+<p>The script will:</p>
+<ul>
+<li>run system update and upgrade some system packages</li>
+<li>modify the boot firmware config</li>
+<li>create a swapfile (can be removed on systems with more RAM)</li>
+<li>add the user to following groups - <code>video</code>, <code>tty</code>, <code>dialout</code></li>
+<li>disable the boot Ethernet timeout</li>
+</ul>
+<p>After rebooting the system, run the second script.</p>
+<pre><code>sudo bash installation.sh
 </code></pre>
-<p>Install ROS2</p>
-<pre><code>locale
-sudo locale-gen en_US en_US.UTF-8
-sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
-export LANG=en_US.UTF-8
-locale  # verify settings
-
-#ros
-sudo apt install -y software-properties-common
-sudo add-apt-repository universe
-sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
-
-echo &quot;deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release &amp;&amp; echo $UBUNTU_CODENAME) main&quot; | sudo tee /etc/apt/sources.list.d/ros2.list &gt; /dev/null
-
-sudo apt update
-sudo apt install -y ros-jazzy-ros-base ros-jazzy-cv-bridge ros-jazzy-image-transport
-
-# Colcon
-curl -s https://packagecloud.io/install/repositories/dirk-thomas/colcon/script.deb.sh | sudo bash
-sudo apt install -y python3-colcon-common-extensions
+<p>The script will:</p>
+<ul>
+<li>update system and install necessary packages</li>
+<li>install Python packages</li>
+<li>install ROS 2 and Colcon</li>
+<li>clone <code>fenrir-project</code> repository</li>
+<li>build ROS 2 packages</li>
+<li>add services to the system and enable them at startup</li>
+</ul>
+<p>If user name is different then &quot;robot&quot;, paths in scripts and service files need to be changed, along with the user for one of services.</p>
+<pre><code>#in repository
+fenrir-project/software/raspberry_pi/prp_root.service 
+fenrir-project/software/raspberry_pi/prp_user.service 
+#or after install
+/etc/systemd/system/prp_root.service
+/etc/systemd/system/prp_user.service
 </code></pre>
-<p>Install Python tools and dependences</p>
-<pre><code># Python-pip
-sudo apt install -y python3-pip
+<p>The <code>ROS_DOMAIN_ID</code> can be changed in the <code>*.service</code> files or optionally in <code>~/.bashrc</code>.</p>
+<h2 id="starting-services"><a class="header" href="#starting-services">Starting services</a></h2>
+<p>Start the necessary services for ROS 2 nodes:</p>
+<pre><code>sudo systemctl start prp_root.service
+sudo systemctl start prp_user.service
+</code></pre>
+<h1 id="cloning-sd-card"><a class="header" href="#cloning-sd-card">Cloning SD card</a></h1>
+<h3 id="prequisitions"><a class="header" href="#prequisitions">Prequisitions:</a></h3>
+<ul>
+<li>Linux OS</li>
+<li>SD card reader</li>
+<li>A SD card with configured system</li>
+<li>An empty SD card of the same size</li>
+</ul>
+<pre><code class="language-bash"># Insert the SD card with the existing system
+lsblk # Identify the SD card and its partitions (e.g., /dev/sdc1 and /dev/sdc2)
 
-# Dependences
-pip3 install board rpi_ws281x adafruit-circuitpython-neopixel adafruit-circuitpython-bme280 adafruit-circuitpython-ads1x15 adafruit-circuitpython-mpu6050 adafruit-circuitpython-ds3231 RPLCD smbus2 pynmea2 --break-system-packages 
+# Unmout the SD card
+sudo umount /dev/sdc*
+
+# Create an image of the SD card with the system
+sudo dd if=/dev/sdc of=~/Documents/prp/robot.img bs=4M status=progress  
+sudo eject /dev/sdc
+
+# Swap the SD card with an empty one
+lsblk # Identify SD card and its partitions (e.g., /dev/sdc1 and /dev/sdc2)
+sudo dd if=~/Documents/prp/robot.img of=/dev/sdc bs=4M status=progress # apply image to the SD card
+sudo sync
+
+# Mount the SD card's partitions
+sudo mkdir /media/jakub/card1
+sudo mount /dev/sdc1 /media/jakub/card1
+sudo mkdir /media/jakub/card2
+sudo mount /dev/sdc2 /media/jakub/card2
+
+# Replace the old hostname for new one
+sudo sed -i 's/prp-red/prp-green/g' /media/jakub/card1/user-data /media/jakub/card2/etc/hostname /media/jakub/card2/etc/hosts
+
+# Unmount SD card and remove created folders
+sudo umount /media/jakub/card1
+sudo umount /media/jakub/card2
+sudo rmdir /media/jakub/card1/
+sudo rmdir /media/jakub/card2/
 </code></pre>
-<p>Now the system is installed.</p>
-<p>Try to run some ROS2 command.</p>
-<pre><code>source /opt/ros/jazzy/setup.bash    # loads ros environment
-ros2 topic list
+<p><code>ROS_DOMAIN_ID</code> can be rewritten in files:</p>
+<pre><code>~/.bashrc
+/etc/systemd/system/prp_user.service
+/etc/systemd/system/prp_root.service
 </code></pre>
-<h2 id="setting-up-robot-sw"><a class="header" href="#setting-up-robot-sw">Setting Up Robot SW</a></h2>
-<p>TODO ...</p>
 
                     </main>
 
