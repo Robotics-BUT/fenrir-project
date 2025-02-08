@@ -344,11 +344,11 @@ void motor_control_task() {
   unsigned long current_time = millis();
   unsigned long elapsed_time = current_time - last_time;
 
-  if (elapsed_time >= 5) {
+  if (elapsed_time >= 1) {
     float dt = (float) elapsed_time / 1000.0;
 
-    l_motor_pwm = 127 + mot_pipeline_l.step(en_0.value, setpoint_l, dt);
-    r_motor_pwm = 127 - mot_pipeline_r.step(en_1.value, -setpoint_r, dt);
+    l_motor_pwm = 127 + mot_pipeline_l.step(en_0.value, -setpoint_l, dt);
+    r_motor_pwm = 127 + mot_pipeline_r.step(en_1.value, setpoint_r, dt);
     last_time = current_time;
   }
 }
