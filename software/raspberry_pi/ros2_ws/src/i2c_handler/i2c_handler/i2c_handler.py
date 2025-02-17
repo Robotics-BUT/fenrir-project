@@ -31,7 +31,7 @@ from .arduino import *
 
 ENABLE_ARDUINO = True
 ENABLE_BME280 = False
-ENABLE_IMU = False
+ENABLE_IMU = True
 ENABLE_MAG = False
 ENABLE_ADC = False
 ENABLE_RTC = False
@@ -45,7 +45,7 @@ class I2cHandlerNode(Node):
         super().__init__('i2c_handler')
 
         self.frame = "/bpc_prp_robot"
-        self.i2c = busio.I2C(board.SCL, board.SDA, frequency=100000)
+        self.i2c = busio.I2C(board.SCL, board.SDA)
 
         self.motor_watchdog = 0
         self.motor_watchdog_timer = self.create_timer(0.1, self.on_motor_watchdog)
@@ -78,7 +78,7 @@ class I2cHandlerNode(Node):
             self.bme_280_timer = self.create_timer(0.1, self.on_bme280)
 
         if ENABLE_IMU:
-            self.mpu = MPU6050(self.i2c)
+            self.mpu = MPU6050(self.i2c, 105)
             self.imu_publisher = self.create_publisher(Imu, '/bpc_prp_robot/imu', 0)
             self.imu_timer = self.create_timer(0.01, self.on_imu)
 
