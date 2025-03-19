@@ -146,7 +146,7 @@
                         <h1 id="rpi-installation"><a class="header" href="#rpi-installation">RPi Installation</a></h1>
 <h2 id="required-hw"><a class="header" href="#required-hw">Required HW</a></h2>
 <ul>
-<li>Respberry Pi 4B (8GB RAM recommended)</li>
+<li>Raspberry Pi 4B (8GB RAM recommended)</li>
 <li>Micro SD Card (minimal 16GB, 64GB recommended)</li>
 <li>SD Card to USB Adapter</li>
 </ul>
@@ -179,8 +179,10 @@
 <p>Connect to the Raspberry Pi</p>
 <pre><code>ssh &lt;user&gt;@&lt;ip_address&gt;
 </code></pre>
-<p>Run first installation script and reboot afterwards. The script may require user input for confirmation on restarting services</p>
+<p>Run first installation script and reboot afterwards. The script may require user input for confirmation on restarting services
+Optionaly run script to disable services for faster boot.</p>
 <pre><code>sudo bash first_start.sh
+sudo bash slow_startup.sh #optional
 sudo reboot now
 </code></pre>
 <p>The script will:</p>
@@ -189,7 +191,12 @@ sudo reboot now
 <li>modify the boot firmware config</li>
 <li>create a swapfile (can be removed on systems with more RAM)</li>
 <li>add the user to following groups - <code>video</code>, <code>tty</code>, <code>dialout</code></li>
-<li>disable the boot Ethernet timeout</li>
+</ul>
+<p>The <code>slow_startup.sh</code> will disable this services:</p>
+<ul>
+<li>network wait</li>
+<li>snap and related services</li>
+<li>cloud init and related services</li>
 </ul>
 <p>After rebooting the system, run the second script.</p>
 <pre><code>sudo bash installation.sh
@@ -211,7 +218,7 @@ fenrir-project/software/raspberry_pi/prp_user.service
 /etc/systemd/system/prp_root.service
 /etc/systemd/system/prp_user.service
 </code></pre>
-<p>The <code>ROS_DOMAIN_ID</code> can be changed in the <code>*.service</code> files or optionally in <code>~/.bashrc</code>.</p>
+<p>The <code>ROS_DOMAIN_ID</code> can be changed in the <code>*.service</code> files and optionally (but preferably) in <code>~/.bashrc</code>.</p>
 <h2 id="starting-services"><a class="header" href="#starting-services">Starting services</a></h2>
 <p>Start the necessary services for ROS 2 nodes:</p>
 <pre><code>sudo systemctl start prp_root.service
@@ -225,6 +232,7 @@ sudo systemctl start prp_user.service
 <li>A SD card with configured system</li>
 <li>An empty SD card of the same size</li>
 </ul>
+<p>Example of how to clone a SD card and rename hostname</p>
 <pre><code class="language-bash"># Insert the SD card with the existing system
 lsblk # Identify the SD card and its partitions (e.g., /dev/sdc1 and /dev/sdc2)
 
