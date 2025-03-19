@@ -19,5 +19,3 @@ sudo systemctl disable cloud-init-local.service
 sudo systemctl disable cloud-config.service
 sudo systemctl disable cloud-final.service
 
-#reboot
-sudo reboot

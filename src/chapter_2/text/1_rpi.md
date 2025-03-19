@@ -2,7 +2,7 @@
 
 ## Required HW
 
- - Respberry Pi 4B (8GB RAM recommended)
+ - Raspberry Pi 4B (8GB RAM recommended)
  - Micro SD Card (minimal 16GB, 64GB recommended)
  - SD Card to USB Adapter
 
@@ -66,8 +66,10 @@ ssh <user>@<ip_address>
 ```
 
 Run first installation script and reboot afterwards. The script may require user input for confirmation on restarting services
+Optionaly run script to disable services for faster boot.
 ```
 sudo bash first_start.sh
+sudo bash slow_startup.sh #optional
 sudo reboot now
 ```
 
@@ -76,7 +78,11 @@ The script will:
 - modify the boot firmware config
 - create a swapfile (can be removed on systems with more RAM)
 - add the user to following groups - `video`, `tty`, `dialout`
-- disable the boot Ethernet timeout
+
+The `slow_startup.sh` will disable this services:
+- network wait
+- snap and related services
+- cloud init and related services
 
 After rebooting the system, run the second script.
 ```
@@ -100,7 +106,7 @@ fenrir-project/software/raspberry_pi/prp_user.service
 /etc/systemd/system/prp_root.service
 /etc/systemd/system/prp_user.service
 ```
-The `ROS_DOMAIN_ID` can be changed in the `*.service` files or optionally in `~/.bashrc`.
+The `ROS_DOMAIN_ID` can be changed in the `*.service` files and optionally (but preferably) in `~/.bashrc`.
 
 ## Starting services
 Start the necessary services for ROS 2 nodes:
@@ -116,7 +122,7 @@ sudo systemctl start prp_user.service
 - A SD card with configured system
 - An empty SD card of the same size
 
-
+Example of how to clone a SD card and rename hostname
 ```bash
 # Insert the SD card with the existing system
 lsblk # Identify the SD card and its partitions (e.g., /dev/sdc1 and /dev/sdc2)
@@ -155,3 +161,4 @@ sudo rmdir /media/jakub/card2/
 /etc/systemd/system/prp_user.service
 /etc/systemd/system/prp_root.service
 ```
+

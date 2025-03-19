@@ -11,8 +11,6 @@ echo "#[all]
 #enable_uart=1
 #dtoverlay=disable-bt" | sudo tee -a /boot/firmware/config.txt 
 
-# disable boot ethernet timeout
-sudo systemctl disable systemd-networkd-wait-online.service 
 #set legacy mode for camera
 sudo raspi-config nonint do_legacy 0 
 
