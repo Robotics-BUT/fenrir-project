@@ -13,7 +13,8 @@ public:
             : Node("camera_handler_cpp")
             , image_transport_(static_cast<SharedPtr>(this))
     {
-        publisher_ = image_transport_.advertise("/bpc_prp_robot/camera", 1);
+        //publisher_ = image_transport_.advertise("/bpc_prp_robot/camera", 1);
+        publisher_ = image_transport_.advertise("/bpc_prp_robot/camera", 1, image_transport::SubscriberStatusCallback(), image_transport::SubscriberStatusCallback(), rclcpp::QoS(10).reliable(), "compressed");
         timer_ = create_wall_timer(
                 std::chrono::milliseconds(33), std::bind(&CameraHandler::timer_callback, this));
         open();
