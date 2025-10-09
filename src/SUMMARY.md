@@ -15,5 +15,4 @@
 - [SW Installation and Setup](4_setup/texts/intro.md)
     - [Raspberry Pi Installation](4_setup/texts/1_rpi.md)
     - [Arduino Programming](4_setup/texts/2_arduino.md)
-
-- 
+  
