@@ -1,6 +1,6 @@
 # Fenrir Project - Universal Robotic Platform
 
-<img src="./media/fenrir_logo.png" width="200">
+![Fenrir Logo](../images/fenrir_logo.png)
 
 The Fenrir Project is an open source of a multi-purpose education robot dedicated for wide range of applications and usage in high-schools and universities.
 

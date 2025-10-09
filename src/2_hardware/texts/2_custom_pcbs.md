@@ -31,18 +31,18 @@ Please see the `/pcbs` folder in the root of the repository for more details.
 
 ### Raspberry Pi Shield
 
-![Raspberry Pi Shield Schematic](../../../pcbs/media/rpi_ext_schematic.png)
+![Raspberry Pi Shield Schematic](../images/pcbs/rpi_ext_schematic.png)
 
-![Raspberry Pi Shield Schematic](../../../pcbs/media/rpi_ext_render_top.png)
+![Raspberry Pi Shield Schematic](../images/pcbs/rpi_ext_render_top.png)
 
 ### I2C Sensor Board
 
-![Raspberry Pi Shield Schematic](../../../pcbs/media/i2c_board_schematic.png)
+![Raspberry Pi Shield Schematic](../images/pcbs/i2c_board_schematic.png)
 
-![Raspberry Pi Shield Schematic](../../../pcbs/media/i2c_board_render.png)
+![Raspberry Pi Shield Schematic](../images/pcbs/i2c_board_render.png)
 
 ### Arduino Nano Every Board
 
-![Raspberry Pi Shield Schematic](../../../pcbs/media/arduino_schematic.png)
+![Raspberry Pi Shield Schematic](../images/pcbs/arduino_schematic.png)
 
-![Raspberry Pi Shield Schematic](../../../pcbs/media/arduino_render.png)
+![Raspberry Pi Shield Schematic](../images/pcbs/arduino_render.png)
