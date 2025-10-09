@@ -122,8 +122,11 @@ The development is currently still under development
 This work was created with the support of project RP182401001 under the PPSŘ 2025 program.
 
 ## Authors
+
 Adam Ligocki - adam.ligocki@vut.cz
 
-Petr Sopak - petr.sopak@vut.cz
+Petr Šopák - petr.sopak@vut.cz
+
+Jakum Minařík
 
 

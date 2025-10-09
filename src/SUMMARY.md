@@ -9,10 +9,15 @@
   - [Wiring](2_hardware/texts/4_wirings.md)
   - [Bill of Materials](2_hardware/texts/5_bom.md)
 
-- [Robot Assembly and Electronics](3_assembly/texts/intro.md)
-    - [Robot Assembly](3_assembly/texts/assembly.md)
+- [Software Architecture](3_software/texts/intro.md)
+  - [Raspberry Pi Software](3_software/texts/1_rpi_sw.md)
+  - [Arduino Firmware](3_software/texts/2_arduino_fw.md)
+  - [Communication](3_software/texts/3_communication.md)  
+
+- [Robot Assembly](4_assembly/texts/intro.md)
+    - [Assembly - step by step](4_assembly/texts/assembly.md)
    
-- [SW Installation and Setup](4_setup/texts/intro.md)
-    - [Raspberry Pi Installation](4_setup/texts/1_rpi.md)
-    - [Arduino Programming](4_setup/texts/2_arduino.md)
+- [SW Installation and Setup](5_setup/texts/intro.md)
+    - [Raspberry Pi Installation](5_setup/texts/1_rpi.md)
+    - [Arduino Programming](5_setup/texts/2_arduino.md)
   
