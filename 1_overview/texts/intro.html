@@ -150,45 +150,11 @@
 <p>The development is currently still under development.</p>
 <h2 id="robot-overview"><a class="header" href="#robot-overview">Robot Overview</a></h2>
 <h3 id="robot-visualization"><a class="header" href="#robot-visualization">Robot visualization</a></h3>
-<p><img src="./media/render.png" alt="Robot" /></p>
+<p><img src="../images/render.png" alt="Robot" /></p>
 <h3 id="overview-schematic"><a class="header" href="#overview-schematic">Overview schematic</a></h3>
-<p><img src="./media/scheme-overview.png" alt="Overview schematic" /></p>
-<h3 id="power-supply-schematic"><a class="header" href="#power-supply-schematic">Power supply schematic</a></h3>
-<p><img src="./media/scheme-power-supply.png" alt="Power supply schematic" /></p>
-<ul>
-<li>Red - 5V</li>
-<li>Black - GND</li>
-<li>Orange - 12V</li>
-<li>Green &amp; Ink - Motor Power Suppy (12V)</li>
-<li>Blue - 3v3 (camera &amp; GNSS)</li>
-</ul>
-<h2 id="equipment"><a class="header" href="#equipment">Equipment</a></h2>
-<table><thead><tr><th>Role</th><th>Component</th><th>URL</th></tr></thead><tbody>
-<tr><td>Main Computer</td><td>RPi</td><td><a href="https://cz.mouser.com/ProductDetail/Raspberry-Pi/SC01959?qs=T%252BzbugeAwjhNCW2QVhlotw%3D%3D">link</a></td></tr>
-<tr><td>Helper Microcontroller</td><td>Arduino Nano</td><td><a href="https://www.laskakit.cz/arduino-nano-r3--atmega328p-klon--pripajene-piny/">link</a></td></tr>
-<tr><td>2x Battery</td><td>Powerbank 10000 mAh</td><td><a href="https://www.alza.cz/alzapower-parade-power-delivery?dq=7177723">link</a></td></tr>
-<tr><td>Camera</td><td>RPi Camera v2</td><td><a href="https://rpishop.cz/mipi-kamerove-moduly/329-raspberry-pi-kamera-modul-v2.html?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=CZ-PMax-Raspberry%20Pi&amp;utm_id=19691368073&amp;gad_source=1&amp;gclid=Cj0KCQiAr7C6BhDRARIsAOUKifiiX4p72F4J8UeeA5uyoK2IDEEryKLRjE0e5gLhURTCTTf2cGW-ZpQaAr76EALw_wcB">link</a></td></tr>
-<tr><td>GPS</td><td>NEO-7M module</td><td><a href="https://dratek.cz/arduino/1733-gps-satelitni-urceni-polohy-neo-7m-modul.html?_gl=1*16f2vtr*_up*MQ..*_gs*MQ..&amp;gclid=Cj0KCQiAr7C6BhDRARIsAOUKifhd7u9T5IjiCyc4w0n-WqehlzG5F2pNwJ4JP5M_eQDHW-daU_NkSKYaAn-_EALw_wcB">link</a></td></tr>
-<tr><td>2D LiDAR</td><td>RPLiDAR A1M8</td><td><a href="https://rpishop.cz/lidary/1631-rplidar-a1m8-360stupnovy-laserovy-scanner-kit-dosah-12m.html">link</a></td></tr>
-<tr><td>LCD</td><td>HD44780 20x4 I2C</td><td><a href="https://dratek.cz/arduino/1421-eses-i2c-20x4-display-pro-jednodeskove-pocitace.html?_gl=1*16f2vtr*_up*MQ..*_gs*MQ..&amp;gclid=Cj0KCQiAr7C6BhDRARIsAOUKifhd7u9T5IjiCyc4w0n-WqehlzG5F2pNwJ4JP5M_eQDHW-daU_NkSKYaAn-_EALw_wcB">link</a></td></tr>
-<tr><td>3x Ultrasound</td><td>SRF-05</td><td><a href="https://dratek.cz/arduino/1735-meric-vzdalenosti-ultrazvukovy-5pin-hy-srf05-pro-arduino.html?gad_source=1&amp;gclid=Cj0KCQiAr7C6BhDRARIsAOUKifhd7u9T5IjiCyc4w0n-WqehlzG5F2pNwJ4JP5M_eQDHW-daU_NkSKYaAn-_EALw_wcB">link</a></td></tr>
-<tr><td>2x Line Sensor</td><td>TCRT5000 module</td><td><a href="https://www.laskakit.cz/arduino-infracerveny-senzor-sledovani-cary-s-lm393/">link</a></td></tr>
-<tr><td>H Bridge</td><td>L298N module</td><td><a href="https://www.laskakit.cz/h-mustek-pro-krokovy-motor-l298n--dualni-motorovy-modul/">link</a></td></tr>
-<tr><td>Motor with Encoder</td><td>DG01D‐E</td><td><a href="https://cz.mouser.com/ProductDetail/SparkFun/ROB-16413?qs=vmHwEFxEFR%2F20T1Ah9zr5w%3D%3D">link</a></td></tr>
-<tr><td>IMU</td><td>MPU6050</td><td><a href="https://pajenicko.cz/gyroskop-akcelerometr-gy-521-s-mpu6050-i2c">link</a></td></tr>
-<tr><td>Barometer</td><td>BME280</td><td><a href="https://pajenicko.cz/senzor-na-mereni-teploty-vlhkosti-tlaku-bme280">link</a></td></tr>
-<tr><td>Real Time Clock</td><td>DS3231</td><td><a href="https://www.laskakit.cz/arduino-rtc-hodiny-realneho-casu-ds3231-at24c32/?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=1_PMax_%5BCZ%5D_Top_tROAS_540&amp;utm_id=18587021915&amp;gad_source=1&amp;gclid=Cj0KCQiAr7C6BhDRARIsAOUKifg6UUgWdBpultpbW-joaJkbae34LBj8l6PJlVsHSvLgqnOoyetU0BsaAva-EALw_wcB">link</a></td></tr>
-<tr><td>ADC</td><td>ADS1115</td><td><a href="https://pajenicko.cz/ad-prevodnik-ads1115-s-programovatelnym-zesilenim-16bit-4-kanaly-i2c-rozhrani">link</a></td></tr>
-<tr><td>UWB (not yet)</td><td>DWM1000</td><td><a href="https://www.laskakit.cz/decawave-dwm1000-lokalizacni-modul/">link</a></td></tr>
-<tr><td>DC/DC Step Up</td><td>XL6009</td><td><a href="https://www.laskakit.cz/step-up-boost-menic-s-xl6009--cervena/">link</a></td></tr>
-<tr><td>Power Delivery</td><td>USB-C PD module</td><td><a href="https://www.laskakit.cz/usb-c-pd-qc-prepinac-napajeciho-napeti/?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=1_PMax_%5BCZ%5D_Rest_tROAS_540&amp;utm_id=20484705754&amp;gad_source=1&amp;gclid=Cj0KCQiAr7C6BhDRARIsAOUKifjczsmkcfvSqKLF3lqhT2G3EaCcH9kkrkxwS225di7C_nkNrmd77JoaAueFEALw_wcB">link</a></td></tr>
-<tr><td>Switch</td><td></td><td><a href="https://pajenicko.cz/kulaty-kolebkovy-spinac-se-zelenou-led-12v-20a">link</a></td></tr>
-</tbody></table>
+<p><img src="../images/scheme-overview.png" alt="Overview schematic" /></p>
 <h2 id="acknowledgments"><a class="header" href="#acknowledgments">Acknowledgments</a></h2>
 <p>This work was created with the support of project RP182401001 under the PPSŘ 2025 program.</p>
-<h2 id="authors"><a class="header" href="#authors">Authors</a></h2>
-<p>Adam Ligocki
-Petr Sopak</p>
 
                     </main>
 
