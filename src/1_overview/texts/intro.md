@@ -1,4 +1,4 @@
-# Fenrir Project - Universal Robotic Platform
+# Fenrir Project Overview
 
 ![Fenrir Logo](../images/fenrir_logo.png)
 

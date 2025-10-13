@@ -1,7 +1,6 @@
 [Introduction](title-page.md)
 
-- [Project Overview](1_overview/texts/intro.md)
-
+- [Fenrir Project Overview](1_overview/texts/intro.md)
 - [Hardware Design](2_hardware/texts/intro.md)
   - [3D Print](2_hardware/texts/1_3d_print.md)
   - [Custom PCBs](2_hardware/texts/2_custom_pcbs.md)

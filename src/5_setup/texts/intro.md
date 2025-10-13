@@ -1,3 +1,3 @@
-# Chapter 2
+# SW Installation and Setup
 
-Lorem Ipsum
+This chapter just briefly describes the installation and setup the entire robot.
