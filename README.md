@@ -24,10 +24,7 @@ The development is currently still under development
 
 ### Wiring Overview
 
-
 ![Wiring Overview](./media/scheme-wiring.png)
-
-
 
 **Note**: The sensors numbering goes from left to right
  - Ultrasound 1 - left, Ultrasound 2 - center, Ultrasound 3 - right
