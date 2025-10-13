@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../title-page.html">Introduction</a></li><li class="chapter-item expanded "><a href="../../1_overview/texts/intro.html"><strong aria-hidden="true">1.</strong> Project Overview</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/intro.html"><strong aria-hidden="true">2.</strong> Hardware Design</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../2_hardware/texts/1_3d_print.html"><strong aria-hidden="true">2.1.</strong> 3D Print</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/2_custom_pcbs.html"><strong aria-hidden="true">2.2.</strong> Custom PCBs</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/3_modules.html"><strong aria-hidden="true">2.3.</strong> Modules</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/4_wirings.html"><strong aria-hidden="true">2.4.</strong> Wiring</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/5_bom.html"><strong aria-hidden="true">2.5.</strong> Bill of Materials</a></li></ol></li><li class="chapter-item expanded "><a href="../../3_software/texts/intro.html"><strong aria-hidden="true">3.</strong> Software Architecture</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../3_software/texts/1_rpi_sw.html"><strong aria-hidden="true">3.1.</strong> Raspberry Pi Software</a></li><li class="chapter-item expanded "><a href="../../3_software/texts/2_arduino_fw.html" class="active"><strong aria-hidden="true">3.2.</strong> Arduino Firmware</a></li><li class="chapter-item expanded "><a href="../../3_software/texts/3_communication.html"><strong aria-hidden="true">3.3.</strong> Communication</a></li></ol></li><li class="chapter-item expanded "><a href="../../4_assembly/texts/intro.html"><strong aria-hidden="true">4.</strong> Robot Assembly</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../4_assembly/texts/assembly.html"><strong aria-hidden="true">4.1.</strong> Assembly - step by step</a></li></ol></li><li class="chapter-item expanded "><a href="../../5_setup/texts/intro.html"><strong aria-hidden="true">5.</strong> SW Installation and Setup</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../5_setup/texts/1_rpi.html"><strong aria-hidden="true">5.1.</strong> Raspberry Pi Installation</a></li><li class="chapter-item expanded "><a href="../../5_setup/texts/2_arduino.html"><strong aria-hidden="true">5.2.</strong> Arduino Programming</a></li></ol></li></ol>            </div>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../title-page.html">Introduction</a></li><li class="chapter-item expanded "><a href="../../1_overview/texts/intro.html"><strong aria-hidden="true">1.</strong> Project Overview</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/intro.html"><strong aria-hidden="true">2.</strong> Hardware Design</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../2_hardware/texts/1_3d_print.html"><strong aria-hidden="true">2.1.</strong> 3D Print</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/2_custom_pcbs.html"><strong aria-hidden="true">2.2.</strong> Custom PCBs</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/3_modules.html"><strong aria-hidden="true">2.3.</strong> Modules</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/4_wirings.html"><strong aria-hidden="true">2.4.</strong> Wiring</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/5_bom.html"><strong aria-hidden="true">2.5.</strong> Bill of Materials</a></li></ol></li><li class="chapter-item expanded "><a href="../../3_software/texts/intro.html"><strong aria-hidden="true">3.</strong> Software Architecture</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../3_software/texts/1_rpi_sw.html"><strong aria-hidden="true">3.1.</strong> Raspberry Pi Software</a></li><li class="chapter-item expanded "><a href="../../3_software/texts/2_arduino_fw.html" class="active"><strong aria-hidden="true">3.2.</strong> Arduino Firmware</a></li></ol></li><li class="chapter-item expanded "><a href="../../4_assembly/texts/intro.html"><strong aria-hidden="true">4.</strong> Robot Assembly</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../4_assembly/texts/assembly.html"><strong aria-hidden="true">4.1.</strong> Assembly - step by step</a></li></ol></li><li class="chapter-item expanded "><a href="../../5_setup/texts/intro.html"><strong aria-hidden="true">5.</strong> SW Installation and Setup</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../5_setup/texts/1_rpi.html"><strong aria-hidden="true">5.1.</strong> Raspberry Pi Installation</a></li><li class="chapter-item expanded "><a href="../../5_setup/texts/2_arduino.html"><strong aria-hidden="true">5.2.</strong> Arduino Programming</a></li></ol></li></ol>            </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
@@ -144,7 +144,25 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="arduino-firmware"><a class="header" href="#arduino-firmware">Arduino Firmware</a></h1>
-<p>Work in progress ...</p>
+<p>The firmware is available here <img src="https://github.com/Robotics-BUT/fenrir-project/blob/main/software/arduino_nano/main/main.ino" alt="Firmware" />.</p>
+<p>This Arduino Nano program works as a motor controller that talks with a main computer (for example a Raspberry Pi) using I²C communication. The Nano is an I²C slave – it waits for messages from the master and answers when needed. When the master sends data, the Nano updates target speeds or control settings. When the master asks for data, the Nano sends back measurements like encoder counts or wheel speeds. This communication happens using interrupt callbacks, so it does not stop the main program loop. In this way, the Nano can control motors and communicate at the same time.</p>
+<p>Arduino handles the ultrasound sensors, line sensors, possible extension for current sensor and controls the motors.</p>
+<p>The robot wheels have encoders that measure how fast they rotate. Each encoder gives electrical pulses when the wheel moves. The Nano uses interrupts to count these pulses very quickly without missing them. The number of pulses in a short time tells how fast the wheel is turning. In the main loop, the program reads these counts and calculates the wheel speed. These measured speeds are compared with the target speeds received from the master to see if the motors are running correctly or need adjustment.</p>
+<p>To keep the wheels turning at the right speed, the Nano uses a PID controller. In every cycle of the main loop, the program calculates the difference between target and actual speed and adjusts the motor power with PWM signals. The direction pins control forward or backward rotation, and the PWM value sets how strong the motor runs. The main loop repeats this many times per second, keeping the movement smooth and stable. Meanwhile, I²C and encoder interrupts work in the background, so the system always knows the latest speed and can react quickly to commands from the master.</p>
+<h2 id="memory-space"><a class="header" href="#memory-space">Memory Space</a></h2>
+<table><thead><tr><th>Byte</th><th>Value</th><th>Length</th><th>R/W</th></tr></thead><tbody>
+<tr><td>0</td><td>ultrasound 0 distance [cm]</td><td>1B</td><td>R</td></tr>
+<tr><td>1</td><td>ultrasound 1 distance [cm]</td><td>1B</td><td>R</td></tr>
+<tr><td>2</td><td>ultrasound 2 distance [cm]</td><td>1B</td><td>R</td></tr>
+<tr><td>3</td><td>encoder A [-]</td><td>4B</td><td>R</td></tr>
+<tr><td>7</td><td>encoder B [-]</td><td>4B</td><td>R</td></tr>
+<tr><td>11</td><td>current probe [-]</td><td>2B</td><td>R</td></tr>
+<tr><td>13</td><td>line sensor 0 [-]</td><td>2B</td><td>R</td></tr>
+<tr><td>15</td><td>line sensor 1 [-]</td><td>2B</td><td>R</td></tr>
+<tr><td>17</td><td>motor 0 speed [-]</td><td>2B</td><td>W</td></tr>
+<tr><td>18</td><td>motor 1 speed [cm]</td><td>1B</td><td>W</td></tr>
+<tr><td>19</td><td>reserverd</td><td>1B</td><td>-</td></tr>
+</tbody></table>
 
                     </main>
 
@@ -154,7 +172,7 @@
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
-                                                    <a rel="next" href="../../3_software/texts/3_communication.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                                    <a rel="next" href="../../4_assembly/texts/intro.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -168,7 +186,7 @@
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
-                                    <a rel="next" href="../../3_software/texts/3_communication.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                    <a rel="next" href="../../4_assembly/texts/intro.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                             </nav>

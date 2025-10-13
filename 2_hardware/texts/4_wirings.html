@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../title-page.html">Introduction</a></li><li class="chapter-item expanded "><a href="../../1_overview/texts/intro.html"><strong aria-hidden="true">1.</strong> Project Overview</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/intro.html"><strong aria-hidden="true">2.</strong> Hardware Design</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../2_hardware/texts/1_3d_print.html"><strong aria-hidden="true">2.1.</strong> 3D Print</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/2_custom_pcbs.html"><strong aria-hidden="true">2.2.</strong> Custom PCBs</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/3_modules.html"><strong aria-hidden="true">2.3.</strong> Modules</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/4_wirings.html" class="active"><strong aria-hidden="true">2.4.</strong> Wiring</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/5_bom.html"><strong aria-hidden="true">2.5.</strong> Bill of Materials</a></li></ol></li><li class="chapter-item expanded "><a href="../../3_software/texts/intro.html"><strong aria-hidden="true">3.</strong> Software Architecture</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../3_software/texts/1_rpi_sw.html"><strong aria-hidden="true">3.1.</strong> Raspberry Pi Software</a></li><li class="chapter-item expanded "><a href="../../3_software/texts/2_arduino_fw.html"><strong aria-hidden="true">3.2.</strong> Arduino Firmware</a></li><li class="chapter-item expanded "><a href="../../3_software/texts/3_communication.html"><strong aria-hidden="true">3.3.</strong> Communication</a></li></ol></li><li class="chapter-item expanded "><a href="../../4_assembly/texts/intro.html"><strong aria-hidden="true">4.</strong> Robot Assembly</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../4_assembly/texts/assembly.html"><strong aria-hidden="true">4.1.</strong> Assembly - step by step</a></li></ol></li><li class="chapter-item expanded "><a href="../../5_setup/texts/intro.html"><strong aria-hidden="true">5.</strong> SW Installation and Setup</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../5_setup/texts/1_rpi.html"><strong aria-hidden="true">5.1.</strong> Raspberry Pi Installation</a></li><li class="chapter-item expanded "><a href="../../5_setup/texts/2_arduino.html"><strong aria-hidden="true">5.2.</strong> Arduino Programming</a></li></ol></li></ol>            </div>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../title-page.html">Introduction</a></li><li class="chapter-item expanded "><a href="../../1_overview/texts/intro.html"><strong aria-hidden="true">1.</strong> Project Overview</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/intro.html"><strong aria-hidden="true">2.</strong> Hardware Design</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../2_hardware/texts/1_3d_print.html"><strong aria-hidden="true">2.1.</strong> 3D Print</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/2_custom_pcbs.html"><strong aria-hidden="true">2.2.</strong> Custom PCBs</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/3_modules.html"><strong aria-hidden="true">2.3.</strong> Modules</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/4_wirings.html" class="active"><strong aria-hidden="true">2.4.</strong> Wiring</a></li><li class="chapter-item expanded "><a href="../../2_hardware/texts/5_bom.html"><strong aria-hidden="true">2.5.</strong> Bill of Materials</a></li></ol></li><li class="chapter-item expanded "><a href="../../3_software/texts/intro.html"><strong aria-hidden="true">3.</strong> Software Architecture</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../3_software/texts/1_rpi_sw.html"><strong aria-hidden="true">3.1.</strong> Raspberry Pi Software</a></li><li class="chapter-item expanded "><a href="../../3_software/texts/2_arduino_fw.html"><strong aria-hidden="true">3.2.</strong> Arduino Firmware</a></li></ol></li><li class="chapter-item expanded "><a href="../../4_assembly/texts/intro.html"><strong aria-hidden="true">4.</strong> Robot Assembly</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../4_assembly/texts/assembly.html"><strong aria-hidden="true">4.1.</strong> Assembly - step by step</a></li></ol></li><li class="chapter-item expanded "><a href="../../5_setup/texts/intro.html"><strong aria-hidden="true">5.</strong> SW Installation and Setup</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../5_setup/texts/1_rpi.html"><strong aria-hidden="true">5.1.</strong> Raspberry Pi Installation</a></li><li class="chapter-item expanded "><a href="../../5_setup/texts/2_arduino.html"><strong aria-hidden="true">5.2.</strong> Arduino Programming</a></li></ol></li></ol>            </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
@@ -144,7 +144,69 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="wiring"><a class="header" href="#wiring">Wiring</a></h1>
-<p>Work in progress ...</p>
+<p><img src="./media/scheme-wiring.png" alt="Wiring Overview" /></p>
+<p><strong>Note</strong>: The sensors numbering goes from left to right</p>
+<ul>
+<li>Ultrasound 1 - left, Ultrasound 2 - center, Ultrasound 3 - right</li>
+<li>Line sensor 1 - left, Line sensor 2 - right</li>
+<li>Motor 1 - left, Motor 2 - right</li>
+<li>Encoder 1 - left, Encoder 2 - right</li>
+</ul>
+<table><thead><tr><th><strong>Module A</strong></th><th><strong>Pin</strong></th><th><strong>Module B</strong></th><th><strong>Pin</strong></th><th><strong>Type</strong></th><th><strong>Length</strong></th><th><strong>Note</strong></th></tr></thead><tbody>
+<tr><td>Battery 1</td><td>-</td><td>PD Module</td><td>-</td><td>USB-C - USB-C</td><td>15cm</td><td>-</td></tr>
+<tr><td>Battery 2</td><td>-</td><td>Raspberry Pi</td><td>-</td><td>USB-C - USB-C</td><td>15cm</td><td>-</td></tr>
+<tr><td>Raspberry Pi</td><td>-</td><td>Camera</td><td>-</td><td>CSI Cable</td><td>10cm</td><td>-</td></tr>
+<tr><td>Raspberry Pi</td><td>3v3</td><td>GPS</td><td>VCC</td><td>wire (blue)</td><td>10cm</td><td>3V3</td></tr>
+<tr><td>Raspberry Pi</td><td>GND</td><td>GPS</td><td>GND</td><td>wire (black)</td><td>10cm</td><td>GND</td></tr>
+<tr><td>Raspberry Pi</td><td>Rx</td><td>GPS</td><td>TxD</td><td>wire (purple)</td><td>10cm</td><td>UART</td></tr>
+<tr><td>Raspberry Pi</td><td>5V</td><td>I2C Board</td><td>5V</td><td>wire (red)</td><td>8cm</td><td>5V</td></tr>
+<tr><td>Raspberry Pi</td><td>GND</td><td>I2C Board</td><td>GND</td><td>wire (black)</td><td>8cm</td><td>GND</td></tr>
+<tr><td>Raspberry Pi</td><td>SCL</td><td>I2C Board</td><td>SCL</td><td>wire (yellow)</td><td>8cm</td><td>SCL</td></tr>
+<tr><td>Raspberry Pi</td><td>SDA</td><td>I2C Board</td><td>SDA</td><td>wire (green)</td><td>8cm</td><td>SDA</td></tr>
+<tr><td>Raspberry Pi</td><td>-</td><td>LIDAR</td><td>-</td><td>USB-A - microUSB</td><td>10cm</td><td>-</td></tr>
+<tr><td>I2C Board</td><td>5V</td><td>LCD</td><td>VCC</td><td>wire (red)</td><td>8cm</td><td>5V</td></tr>
+<tr><td>I2C Board</td><td>GND</td><td>LCD</td><td>GND</td><td>wire (black)</td><td>8cm</td><td>GND</td></tr>
+<tr><td>I2C Board</td><td>SCL</td><td>LCD</td><td>SCL</td><td>wire (yellow)</td><td>8cm</td><td>SCL</td></tr>
+<tr><td>I2C Board</td><td>SDA</td><td>LCD</td><td>SDA</td><td>wire (green)</td><td>8cm</td><td>SDA</td></tr>
+<tr><td>I2C Board</td><td>5V</td><td>Arduino</td><td>VCC</td><td>wire (red)</td><td>15cm</td><td>5V</td></tr>
+<tr><td>I2C Board</td><td>GND</td><td>Arduino</td><td>GND</td><td>wire (black)</td><td>15cm</td><td>GND</td></tr>
+<tr><td>I2C Board</td><td>SCL</td><td>Arduino</td><td>SCL</td><td>wire (yellow)</td><td>15cm</td><td>SCL</td></tr>
+<tr><td>I2C Board</td><td>SDA</td><td>Arduino</td><td>SDA</td><td>wire (green)</td><td>15cm</td><td>SDA</td></tr>
+<tr><td>Arduino</td><td>US1</td><td>Ultrasound 1</td><td>Vcc</td><td>wire (red)</td><td>10cm</td><td>5V</td></tr>
+<tr><td>Arduino</td><td>US1</td><td>Ultrasound 1</td><td>GND</td><td>wire (black)</td><td>10cm</td><td>GND</td></tr>
+<tr><td>Arduino</td><td>US1</td><td>Ultrasound 1</td><td>Echo/Trig</td><td>wire (blue)</td><td>10cm</td><td>signal</td></tr>
+<tr><td>Arduino</td><td>US2</td><td>Ultrasound 2</td><td>Vcc</td><td>wire (red)</td><td>10cm</td><td>5V</td></tr>
+<tr><td>Arduino</td><td>US2</td><td>Ultrasound 2</td><td>GND</td><td>wire (black)</td><td>10cm</td><td>GND</td></tr>
+<tr><td>Arduino</td><td>US2</td><td>Ultrasound 2</td><td>Echo/Trig</td><td>wire (blue)</td><td>10cm</td><td>signal</td></tr>
+<tr><td>Arduino</td><td>US3</td><td>Ultrasound 3</td><td>Vcc</td><td>wire (red)</td><td>15cm</td><td>5V</td></tr>
+<tr><td>Arduino</td><td>US3</td><td>Ultrasound 3</td><td>GND</td><td>wire (black)</td><td>15cm</td><td>GND</td></tr>
+<tr><td>Arduino</td><td>US3</td><td>Ultrasound 3</td><td>Echo/Trig</td><td>wire (blue)</td><td>15cm</td><td>signal</td></tr>
+<tr><td>Arduino</td><td>Line1</td><td>Line Sens. 1</td><td>VCC</td><td>wire (red)</td><td>15cm</td><td>5V</td></tr>
+<tr><td>Arduino</td><td>Line1</td><td>Line Sens. 1</td><td>GND</td><td>wire (black)</td><td>15cm</td><td>GND</td></tr>
+<tr><td>Arduino</td><td>Line1</td><td>Line Sens. 1</td><td>A0</td><td>wire (blue)</td><td>15cm</td><td>signal</td></tr>
+<tr><td>Arduino</td><td>Line2</td><td>Line Sens. 2</td><td>VCC</td><td>wire (red)</td><td>15cm</td><td>5V</td></tr>
+<tr><td>Arduino</td><td>Line2</td><td>Line Sens. 2</td><td>GND</td><td>wire (black)</td><td>15cm</td><td>GND</td></tr>
+<tr><td>Arduino</td><td>Line2</td><td>Line Sens. 2</td><td>A0</td><td>wire (blue)</td><td>15cm</td><td>signal</td></tr>
+<tr><td>Arduino</td><td>5V</td><td>Encoder 1</td><td>-</td><td>wire (yellow)</td><td>20cm</td><td>5V</td></tr>
+<tr><td>Arduino</td><td>GND</td><td>Encoder 1</td><td>-</td><td>wire (brown)</td><td>20cm</td><td>GND</td></tr>
+<tr><td>Arduino</td><td>EN1A</td><td>Encoder 1</td><td>-</td><td>wire (red)</td><td>20cm</td><td>A</td></tr>
+<tr><td>Arduino</td><td>EN1B</td><td>Encoder 1</td><td>-</td><td>wire (orange)</td><td>20cm</td><td>B</td></tr>
+<tr><td>Arduino</td><td>5V</td><td>Encoder 2</td><td>-</td><td>wire (yellow)</td><td>20cm</td><td>5V</td></tr>
+<tr><td>Arduino</td><td>GND</td><td>Encoder 2</td><td>-</td><td>wire (brown)</td><td>20cm</td><td>GND</td></tr>
+<tr><td>Arduino</td><td>EN2A</td><td>Encoder 2</td><td>-</td><td>wire (red)</td><td>20cm</td><td>A</td></tr>
+<tr><td>Arduino</td><td>EN2B</td><td>Encoder 2</td><td>-</td><td>wire (orange)</td><td>20cm</td><td>B</td></tr>
+<tr><td>Arduino</td><td>GND</td><td>PD Module</td><td>OUT-</td><td>wire (black)</td><td>-</td><td>-</td></tr>
+<tr><td>Arduino</td><td>M1A</td><td>H-Bridge</td><td>IN3</td><td>wire (yellow)</td><td>20cm</td><td>PWM A+</td></tr>
+<tr><td>Arduino</td><td>M1B</td><td>H-Bridge</td><td>IN4</td><td>wire (green)</td><td>20cm</td><td>PWM A-</td></tr>
+<tr><td>Arduino</td><td>M2A</td><td>H-Bridge</td><td>IN1</td><td>wire (yellow)</td><td>20cm</td><td>PWM B+</td></tr>
+<tr><td>Arduino</td><td>M2B</td><td>H-Bridge</td><td>IN2</td><td>wire (green)</td><td>20cm</td><td>PWM B-</td></tr>
+<tr><td>PD Module</td><td>+</td><td>H-Bridge</td><td>+12V</td><td>wire (orange)</td><td>15cm</td><td>12V</td></tr>
+<tr><td>PD Module</td><td>-</td><td>H-Bridge</td><td>GND</td><td>wire (black)</td><td>15cm</td><td>GND</td></tr>
+<tr><td>H-Bridge</td><td>OUT1+</td><td>Motor 1</td><td>-</td><td>wire (green)</td><td>20cm</td><td>+</td></tr>
+<tr><td>H-Bridge</td><td>OUT1-</td><td>Motor 1</td><td>-</td><td>wire (blue)</td><td>20cm</td><td>-</td></tr>
+<tr><td>H-Bridge</td><td>OUT2+</td><td>Motor 2</td><td>-</td><td>wire (green)</td><td>20cm</td><td>+</td></tr>
+<tr><td>H-Bridge</td><td>OUT2-</td><td>Motor 2</td><td>-</td><td>wire (blue)</td><td>20cm</td><td>-</td></tr>
+</tbody></table>
 
                     </main>
 
