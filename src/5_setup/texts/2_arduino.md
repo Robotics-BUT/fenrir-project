@@ -27,7 +27,4 @@ If build goes ok, try to upload the firmware using the "Upload" button in left t
 
 Using the `ctrl+shift+M` open terminal and check if microcontroller communicates.
 
-## Program Description
-
-... TODO ...
 
