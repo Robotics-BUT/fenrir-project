@@ -1,4 +1,4 @@
 # Hardware Desing
 
-This section describes all the components required to build a robot. We discuss the 3D printing, electronics, modules, custom PCBs, etc.
-
+This section provides a detailed description of all hardware components required to build the robot.  
+It covers 3D-printed parts, electronic components, integrated modules, and custom-designed PCBs.
