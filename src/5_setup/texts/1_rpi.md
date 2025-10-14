@@ -8,7 +8,6 @@
 
 ## Installation
 
-
 Install RPi-Imager on your Linux PC
 
 ```
@@ -21,37 +20,57 @@ Run RPi-Imager
 rpi-imager
 ```
 
+<p align="center">
 <img src="../images/rpi_install_imager.png" width="300">
+</p>
 
 Select Device (Raspberry Pi 4)
 
+<p align="center">
 <img src="../images/rpi_install_select_device.png" width="300">
+</p>
 
 Select OS - Others General Purpose OS -> Ubuntu -> Ubuntu Server 22.04.5 LTS (64b)
 
+<p align="center">
 <img src="../images/rpi_install_select_os_1.png" width="300">
+</p>
 
+<p align="center">
 <img src="../images/rpi_install_select_os_2.png" width="300">
+</p>
 
+<p align="center">
 <img src="../images/rpi_install_select_os_3.png" width="300">
+</p>
 
 Select target device (SD Card)
 
+<p align="center">
 <img src="../images/rpi_install_select_msd.png" width="300">
+</p>
 
 Click Next -> Edit Settings
 
+<p align="center">
 <img src="../images/rpi_install_settings.png" width="300">
+</p>
 
 Setup user, password, WiFi and SSH
 
+<p align="center">
 <img src="../images/rpi_install_config_wifi.png" width="300">
+</p>
 
+<p align="center">
 <img src="../images/rpi_install_config_ssh.png" width="300">
+</p>
 
 Confirm and wait until writing is finished.
 
+<p align="center">
 <img src="../images/rpi_install_writing.png" width="300">
+</p>
 
 Now put the SD card into the RPi and power on.
 
@@ -97,7 +116,7 @@ The script will:
 - add services to the system and enable them at startup
 
 
-If user name is different then "robot", paths in scripts and service files need to be changed, along with the user for one of services.
+If user name is different than "robot", paths in scripts and service files need to be changed, along with the user for one of services.
 ```
 #in repository
 fenrir-project/software/raspberry_pi/prp_root.service 
@@ -122,7 +141,7 @@ sudo systemctl start prp_user.service
 - A SD card with configured system
 - An empty SD card of the same size
 
-Example of how to clone a SD card and rename hostname
+Example of how to **clone a SD card** and rename hostname
 ```bash
 # Insert the SD card with the existing system
 lsblk # Identify the SD card and its partitions (e.g., /dev/sdc1 and /dev/sdc2)
