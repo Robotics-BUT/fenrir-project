@@ -728,22 +728,42 @@ It covers 3D-printed parts, electronic components, integrated modules, and custo
 <p>Run RPi-Imager</p>
 <pre><code>rpi-imager
 </code></pre>
+<p align="center">
 <img src="5_setup/texts/../images/rpi_install_imager.png" width="300">
+</p>
 <p>Select Device (Raspberry Pi 4)</p>
+<p align="center">
 <img src="5_setup/texts/../images/rpi_install_select_device.png" width="300">
+</p>
 <p>Select OS - Others General Purpose OS -&gt; Ubuntu -&gt; Ubuntu Server 22.04.5 LTS (64b)</p>
+<p align="center">
 <img src="5_setup/texts/../images/rpi_install_select_os_1.png" width="300">
+</p>
+<p align="center">
 <img src="5_setup/texts/../images/rpi_install_select_os_2.png" width="300">
+</p>
+<p align="center">
 <img src="5_setup/texts/../images/rpi_install_select_os_3.png" width="300">
+</p>
 <p>Select target device (SD Card)</p>
+<p align="center">
 <img src="5_setup/texts/../images/rpi_install_select_msd.png" width="300">
+</p>
 <p>Click Next -&gt; Edit Settings</p>
+<p align="center">
 <img src="5_setup/texts/../images/rpi_install_settings.png" width="300">
+</p>
 <p>Setup user, password, WiFi and SSH</p>
+<p align="center">
 <img src="5_setup/texts/../images/rpi_install_config_wifi.png" width="300">
+</p>
+<p align="center">
 <img src="5_setup/texts/../images/rpi_install_config_ssh.png" width="300">
+</p>
 <p>Confirm and wait until writing is finished.</p>
+<p align="center">
 <img src="5_setup/texts/../images/rpi_install_writing.png" width="300">
+</p>
 <p>Now put the SD card into the RPi and power on.</p>
 <p>In case of problems, please visit <a href="https://www.raspberrypi.com/documentation/computers/getting-started.html#install-using-imager">Official Documentation</a> </p>
 <h2 id="os-configuration"><a class="header" href="#os-configuration">OS Configuration</a></h2>
@@ -781,7 +801,7 @@ sudo reboot now
 <li>build ROS 2 packages</li>
 <li>add services to the system and enable them at startup</li>
 </ul>
-<p>If user name is different then &quot;robot&quot;, paths in scripts and service files need to be changed, along with the user for one of services.</p>
+<p>If user name is different than &quot;robot&quot;, paths in scripts and service files need to be changed, along with the user for one of services.</p>
 <pre><code>#in repository
 fenrir-project/software/raspberry_pi/prp_root.service 
 fenrir-project/software/raspberry_pi/prp_user.service 
@@ -803,7 +823,7 @@ sudo systemctl start prp_user.service
 <li>A SD card with configured system</li>
 <li>An empty SD card of the same size</li>
 </ul>
-<p>Example of how to clone a SD card and rename hostname</p>
+<p>Example of how to <strong>clone a SD card</strong> and rename hostname</p>
 <pre><code class="language-bash"># Insert the SD card with the existing system
 lsblk # Identify the SD card and its partitions (e.g., /dev/sdc1 and /dev/sdc2)
 
