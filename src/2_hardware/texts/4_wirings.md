@@ -1,13 +1,22 @@
 # Wiring
 
-![Wiring Overview](./media/scheme-wiring.png)
+<p align="center">
+  <img src="/media/scheme-wiring.png" alt="Wiring Overview" width="500">
+</p>
+<p align="center"><em>Figure 1. Wiring overview of the Fenrir robot.</em></p>
 
-**Note**: The sensors numbering goes from left to right
-- Ultrasound 1 - left, Ultrasound 2 - center, Ultrasound 3 - right
-- Line sensor 1 - left, Line sensor 2 - right
-- Motor 1 - left, Motor 2 - right
-- Encoder 1 - left, Encoder 2 - right
+------------------------------------------------------------------------------
 
+**Note**: Sensor and motor numbering follows a left-to-right convention:
+- **Ultrasounds 1** - left, Ultrasound 2 - center, Ultrasound 3 - right
+- **Line sensors:** 1 - left, Line sensor 2 - right
+- **Motors:** 1 - left, Motor 2 - right
+- **Encoders:** 1 - left, Encoder 2 - right
+
+---------------------------------------------------------------------------------
+
+<div align="center">
+  
 | **Module A**       | **Pin**  | **Module B**        | **Pin**        | **Type**              | **Length** | **Note** |
 |--------------------|----------|---------------------|----------------|-----------------------|------------|----------|
 | Battery 1          | -        | PD Module           | -              | USB-C - USB-C         | 15cm       | -        |
@@ -63,3 +72,6 @@
 | H-Bridge           | OUT1-    | Motor 1             | -              | wire (blue)           | 20cm       | -        |
 | H-Bridge           | OUT2+    | Motor 2             | -              | wire (green)          | 20cm       | +        |
 | H-Bridge           | OUT2-    | Motor 2             | -              | wire (blue)           | 20cm       | -        |
+
+</div>
+
