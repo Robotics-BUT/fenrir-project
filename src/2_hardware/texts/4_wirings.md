@@ -1,7 +1,7 @@
 # Wiring
 
 <p align="center">
-  <img src="/media/scheme-wiring.png" alt="Wiring Overview" width="500">
+  <img src="https://raw.githubusercontent.com/Robotics-BUT/fenrir-project/refs/heads/main/media/scheme-wiring.png" alt="Wiring Overview" width="500">
 </p>
 <p align="center"><em>Figure 1. Wiring overview of the Fenrir robot.</em></p>
 
