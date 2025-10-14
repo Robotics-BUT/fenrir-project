@@ -1,22 +1,26 @@
 # Fenrir Project Overview
 
-![Fenrir Logo](../images/fenrir_logo.png)
+<p id="fenrir_logo" align="center">
+  <img src="../images/fenrir_logo.png" alt="Fenrir Logo" width="300" height="300">
+</p align="center">
 
-The Fenrir Project is an open source of a multi-purpose education robot dedicated for wide range of applications and usage in high-schools and universities.
+The **Fenrir Project** is an open-source, multi-purpose educational robot designed for a wide range of applications in high schools and universities.
 
-The robot is based on Raspberry Pi 4 and Arduino Nano. The Raspberry Pi provides computational power, ROS2 support, WiFi connection and USB support. The Arduino Nano extends the PRi IOs and handles peripherals.
-
-The development is currently still under development.
+The robot is based on *Raspberry Pi 4* and *Arduino Nano*. The Raspberry Pi provides computational power, ROS2 support, WiFi connection and USB support. The Arduino Nano extends the Raspberry Pi IOs and manages peripherals.
 
 ## Robot Overview
 
-### Robot visualization
+### Visualization - Physical Design
 
-![Robot](../images/render.png)
+<p id="robot_renderer" align="center">
+  <img src="../images/render.png" alt="robot renderer" width="300" height="300">
+</p align="center">
 
-### Overview schematic
+### Schematic system Architecture
 
-![Overview schematic](../images/scheme-overview.png)
+<p id="overview_schematic" align="center">
+  <img src="../images/scheme-overview.png" alt="Overview schematic" width="400" height="400">
+</p align="center">
 
 ## Acknowledgments
 
