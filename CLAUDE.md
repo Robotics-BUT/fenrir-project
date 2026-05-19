@@ -33,7 +33,7 @@ ROS 2 graph (other machines / student code)
 | `i2c_handler` | ament_python | Polls Arduino (0x50) + I2C sensors. Publishes `/bpc_prp_robot/ultrasounds`, `/line_sensors`, `/current_probes`, `/encoders`, `/imu`, `/mag`, `/temp`, `/air_press`, `/adc`, `/time`. Subscribes `/set_motor_speeds`, `/set_time`, `/set_lcd_text`, `/set_lcd_cursor`, `/set_lcd_clear`. |
 | `buttons_handler` | ament_python | Publishes `/bpc_prp_robot/buttons` (GPIO buttons). |
 | `rgb_leds_handler` | ament_python | Subscribes `/bpc_prp_robot/rgb_leds` (NeoPixel/WS281x LEDs). |
-| `camera_handler_cpp` | ament_cmake (C++17) | Publishes `/bpc_prp_robot/camera` (compressed image via `image_transport`, OpenCV). |
+| `camera_handler_cpp` | ament_cmake (C++17) | Publishes `/bpc_prp_robot/camera` as `sensor_msgs/Image` (`bgr8`) via `image_transport` with the `compressed` transport hint; OpenCV-built frames. |
 | `rplidar` | git submodule | Slamtec `rplidar_ros`; `rplidar_node` publishes `/scan` remapped to `/bpc_prp_robot/lidar`. |
 
 ### Launch split — root vs user nodes
