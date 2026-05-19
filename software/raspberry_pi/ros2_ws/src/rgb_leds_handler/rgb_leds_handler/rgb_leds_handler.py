@@ -7,7 +7,7 @@ from std_msgs.msg import UInt8MultiArray
 
 class RgbLedsHandlerNode(Node):
     def __init__(self):
-        super().__init__('camera_handler')
+        super().__init__('rgb_leds_handler')
         self.no_of_leds = 4
         self.leds = neopixel.NeoPixel(board.D18, self.no_of_leds)
         self.rgb_leds_subscriber = self.create_subscription(
