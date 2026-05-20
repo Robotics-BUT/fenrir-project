@@ -308,15 +308,19 @@
   </gazebo>
 
   <!-- ============================================================== -->
-  <!--  Line-sensor mount (placeholder)                                -->
+  <!--  Line sensors (T4.2)                                            -->
   <!--                                                                 -->
-  <!--  The real Fenrir has 2 analog line sensors pointing down. There -->
-  <!--  is no off-the-shelf Gazebo "line sensor" primitive. Phase 4    -->
-  <!--  T4.2 will implement either a downward camera + image-processing -->
-  <!--  in the bridge, or a custom plugin reading a texture mask.      -->
+  <!--  The real Fenrir has 2 analog IR line sensors pointing down.   -->
+  <!--  No native Gazebo "line sensor" exists, so we simulate them as -->
+  <!--  a small downward-facing camera that the line_sensor_bridge    -->
+  <!--  node samples at two pixel positions. The bridge publishes      -->
+  <!--  /bpc_prp_robot/line_sensors as UInt16MultiArray[2] in the      -->
+  <!--  0..1023 range, matching the real ADC. Polarity: white floor   -->
+  <!--  -> high reading, black line -> low reading (linear in pixel    -->
+  <!--  brightness).                                                   -->
   <!--                                                                 -->
-  <!--  For the vertical slice we just publish the mount frame; the    -->
-  <!--  bridge node currently emits a constant zero line_sensors topic. -->
+  <!--  The camera image itself is bridged as /internal/floor_camera; -->
+  <!--  students should not subscribe to it directly.                  -->
   <!-- ============================================================== -->
   <link name="line_sensor_link"/>
   <joint name="line_sensor_joint" type="fixed">
@@ -324,6 +328,31 @@
     <child  link="line_sensor_link"/>
     <origin xyz="${line_sensor_x} 0 ${line_sensor_z}" rpy="0 0 0"/>
   </joint>
+
+  <gazebo reference="line_sensor_link">
+    <sensor name="floor_camera" type="camera">
+      <topic>internal/floor_camera</topic>
+      <gz_frame_id>line_sensor_link</gz_frame_id>
+      <update_rate>30</update_rate>
+      <!-- Rotate the sensor so its optical +x (camera forward in gz)
+           points straight down (-z of line_sensor_link). -->
+      <pose>0 0 0 0 ${pi/2.0} 0</pose>
+      <camera>
+        <horizontal_fov>1.5708</horizontal_fov>  <!-- 90 deg -->
+        <image>
+          <width>64</width>
+          <height>32</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.001</near>
+          <far>0.5</far>
+        </clip>
+      </camera>
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+    </sensor>
+  </gazebo>
 
   <!-- ============================================================== -->
   <!--  Diff-drive system plugin (Gazebo Harmonic gz::sim::systems)    -->

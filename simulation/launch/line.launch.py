@@ -123,6 +123,21 @@ def generate_launch_description() -> LaunchDescription:
         }],
     )
 
+    # ---- line_sensor_bridge: floor_camera -> /bpc_prp_robot/line_sensors --
+    line_sensor_bridge = Node(
+        package="fenrir_sim",
+        executable="line_sensor_bridge",
+        output="screen",
+        parameters=[{
+            "left_col_frac":  0.25,
+            "right_col_frac": 0.75,
+            "row_frac":       0.5,
+            "sample_radius":  2,
+            "max_reading":    1023,
+            "use_sim_time": LaunchConfiguration("use_sim_time"),
+        }],
+    )
+
     # ---- optional RViz2 ---------------------------------------------------
     rviz = Node(
         package="rviz2",
@@ -149,5 +164,6 @@ def generate_launch_description() -> LaunchDescription:
         spawn,
         bridge,
         motor_bridge,
+        line_sensor_bridge,
         rviz,
     ])

@@ -12,7 +12,7 @@ sim**, then expand to corridor and maze worlds.
 |---|---|
 | Robot description (URDF/xacro) | ✅ first cut, with placeholder dimensions to be refined from the SolidWorks CAD |
 | Diff-drive + lidar + camera + IMU plugins | ✅ wired into the URDF |
-| Line sensors | ❌ not implemented — needs a custom plugin or downward camera (T4.2 follow-up) |
+| Line sensors | ✅ downward camera + line_sensor_bridge node samples brightness at two pixel positions; publishes UInt16MultiArray[2] in 0..1023, white floor → high, line → low |
 | Encoders / ultrasounds / buttons / LEDs | ❌ not implemented — bridge stubs needed |
 | `empty.sdf` (spawn-test world) | ✅ |
 | `line.sdf` (line-following) | ✅ first cut, simple oval; refine with `tracks.drawio` geometry |
@@ -142,9 +142,6 @@ for grading or quantitative arguments.
 
 ## Follow-up work (roadmap §8)
 
-- **T4.2** — line sensors. Either a custom Gazebo plugin reading a texture
-  mask under the robot, or a downward-pointing tiny camera + image-processing
-  in the bridge. The roadmap flags this as the trickiest sensor.
 - **T4.3** — finish the bridge: encoders (joint_states → uint32 ticks),
   ultrasounds, buttons, RGB LEDs, current_probes. Bit-identical match against
   Appendix B of the roadmap.
@@ -152,3 +149,21 @@ for grading or quantitative arguments.
   exam). Maze STLs are in `3d-print/maze/`; use as gz models.
 - **T4.5** — `corridor.launch.py`, `maze.launch.py`.
 - **T4.6** — add a "Simulation" section to every hardware lab in `BPC-PRP/`.
+
+### Line-sensor calibration notes
+
+The line-sensor bridge has tunable parameters in `launch/line.launch.py`:
+
+| Param | Default | What it does |
+|---|---|---|
+| `left_col_frac`, `right_col_frac` | 0.25, 0.75 | Pixel column (as a fraction of image width) where each virtual sensor samples. Default puts them ~5 cm apart on the floor. Real Fenrir IR sensors are 2–3 cm apart — tighten to ~0.4 / 0.6 once that's measured. |
+| `sample_radius` | 2 | Half-side of a square (2r+1 px) window averaged at each sample point. Smooths noise. |
+| `row_frac` | 0.5 | Image row to sample; 0.5 = center, directly under the front of the robot. |
+| `max_reading` | 1023 | ADC scale; matches MODERNIZATION_ROADMAP §B. |
+
+Observed contrast in the `line.sdf` world: ON-line ≈150, OFF-line
+≈600–750 (lighting non-uniform across the floor). 4–5× contrast — fine for
+threshold-based line following. **Polarity**: white floor → high reading,
+line → low. If the real Fenrir ADC inverts this, flip the
+`_brightness_to_reading` line in `fenrir_sim/line_sensor_bridge.py` — one
+line, no other contract change.

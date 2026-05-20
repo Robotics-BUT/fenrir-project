@@ -7,8 +7,8 @@
 #   /bpc_prp_robot/set_motor_speeds  →  /cmd_vel
 #       handled by fenrir_sim/motor_bridge.py
 #   /bpc_prp_robot/line_sensors
-#       T4.2 follow-up: needs custom plugin or downward camera + image
-#       processing. Bridge currently emits no message.
+#       handled by fenrir_sim/line_sensor_bridge.py — it consumes the
+#       /internal/floor_camera image bridged below and samples two pixels.
 #   /bpc_prp_robot/encoders
 #       T4-vs follow-up: derive from gz joint_states (encoder ticks).
 #   /bpc_prp_robot/ultrasounds / buttons / rgb_leds / current_probes
@@ -32,6 +32,14 @@
   gz_topic_name:  "/camera_info"
   ros_type_name:  "sensor_msgs/msg/CameraInfo"
   gz_type_name:   "gz.msgs.CameraInfo"
+  direction:      GZ_TO_ROS
+
+# ---- Internal floor camera (consumed by line_sensor_bridge) ----------------
+# Not part of the /bpc_prp_robot/* contract -- students should not rely on it.
+- ros_topic_name: "/internal/floor_camera"
+  gz_topic_name:  "/internal/floor_camera"
+  ros_type_name:  "sensor_msgs/msg/Image"
+  gz_type_name:   "gz.msgs.Image"
   direction:      GZ_TO_ROS
 
 # ---- IMU (MPU6050) ----------------------------------------------------------
