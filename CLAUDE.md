@@ -10,14 +10,23 @@ Fenrir is an open-source educational robotic platform. It is the **physical robo
 
 ## Branch state
 
+> **⚠ PARKED until end of semester (decision 2026-05-20).** The BPC-PRP
+> course is currently in session and runs against this robot. Hold the
+> `modernization/phase-3 → main` merge until the active course run ends —
+> mixing the Phase 1 doc updates into `main` while the rest of the
+> modernization (T2.1 Pi-stack Jazzy migration, T3.3 robot-runtime image)
+> is still pending could confuse anyone reading the latest fenrir docs.
+> Pre-drafted PR description in `bpc-prp-devel/MODERNIZATION_ROADMAP.md`
+> Appendix C (Merge 4/5).
+
 - **`main`** is the pushed baseline.
-- **`modernization/phase-1`** (unmerged/unpushed) carries the `rgb_leds_handler` node-name fix (T1.9) and CLAUDE.md additions.
-- **`modernization/phase-3`** (unmerged/unpushed, branched 2026-05-20 off phase-1) is where Phase 3 work happens here — the `robot-runtime` Docker image (T3.3 in `bpc-prp-devel/MODERNIZATION_ROADMAP.md` §7).
+- **`modernization/phase-1`** (pushed to origin) carries the `rgb_leds_handler` node-name fix (T1.9) and CLAUDE.md additions. 3 commits ahead of `main`.
+- **`modernization/phase-3`** (pushed to origin, branched 2026-05-20 off phase-1) is where Phase 3 work *will* happen here — the `robot-runtime` Docker image (T3.3 in `bpc-prp-devel/MODERNIZATION_ROADMAP.md` §7). Currently just carries CLAUDE.md amendments describing the plan. 4 commits ahead of `main` (includes phase-1 ancestry).
 
 **Phase 2 status note:** T2.1 (Pi workspace to ROS 2 Jazzy) and T2.3 (provisioning to Ubuntu 24.04) are **deferred** to a bundled hands-on robot session along with T2.5. Consequence: **T3.3 robot-runtime is BLOCKED** until T2.1 lands — the image needs the Pi nodes to build on Jazzy before it can be containerized. T2.2 (`main_controller` on Jazzy) is done in the `bpc-prp-devel` repo and does not affect this one.
 
 Expect three known Jazzy-migration fixes when T2.1 is finally done (see roadmap §2.4):
-- Every `uint*_t` / `int*_t` / `size_t` user needs `#include <cstdint>` (GCC 14 dropped transitive `<cstdint>` from `<cmath>` etc.).
+- Every `uint*_t` / `int*_t` / `size_t` user needs `#include <cstdint>` (GCC 13.3 / libstdc++ 13 dropped transitive `<cstdint>` from `<cmath>` etc.).
 - `cv_bridge/cv_bridge.h` is gone in Iron+; `camera_handler_cpp` must switch to `cv_bridge/cv_bridge.hpp`.
 - The `rplidar` git submodule must be bumped to a Jazzy-supported tag/branch.
 
