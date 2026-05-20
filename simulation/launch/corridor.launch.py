@@ -1,17 +1,18 @@
-"""Launch the Fenrir sim in the line-following world (Phase 4 vertical slice).
+"""Launch the Fenrir sim in a corridor world (Phase 4 / Lab 12).
 
 Brings up:
-  * gz_sim with the line.sdf world,
+  * gz_sim with one of corridor_{straight,loop,double_loop}.sdf,
   * robot_state_publisher fed by xacro-rendered fenrir.urdf.xacro,
-  * a spawn of the robot into the gz world,
+  * a spawn of the robot at the world-specific start cell,
   * ros_gz_bridge with the static topic map (config/ros_gz_bridge.yaml),
-  * the motor_bridge node that handles /bpc_prp_robot/set_motor_speeds,
+  * motor_bridge + line_sensor_bridge + lidar_bridge,
   * optional RViz2 (launch arg `rviz:=true`).
 
-Usage from inside the bpc-prp-sim:jazzy container:
-    ros2 launch fenrir_sim line.launch.py
-    ros2 launch fenrir_sim line.launch.py rviz:=true
-    ros2 launch fenrir_sim line.launch.py headless:=true   # no gz-gui
+Usage:
+    ros2 launch fenrir_sim corridor.launch.py
+    ros2 launch fenrir_sim corridor.launch.py world:=corridor_loop.sdf
+    ros2 launch fenrir_sim corridor.launch.py world:=corridor_double_loop.sdf
+    ros2 launch fenrir_sim corridor.launch.py headless:=true rviz:=true
 """
 
 import os
@@ -36,26 +37,37 @@ from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
 
-def generate_launch_description() -> LaunchDescription:
-    pkg_share = get_package_share_directory("fenrir_sim")
-    world_path = os.path.join(pkg_share, "worlds", "line.sdf")
-    urdf_xacro = os.path.join(pkg_share, "description", "fenrir.urdf.xacro")
-    bridge_yaml = os.path.join(pkg_share, "config", "ros_gz_bridge.yaml")
+# World-specific spawn poses. Robot starts somewhere sensible in each
+# track's corridor so a naive forward-driving controller does the right
+# thing.
+SPAWN_POSES = {
+    "corridor_straight.sdf":    {"x": "0.2",  "y":  "0.0", "Y": "0.0"},
+    "corridor_loop.sdf":        {"x": "0.8",  "y": "-0.7", "Y": "1.5708"},   # +y heading
+    "corridor_double_loop.sdf": {"x": "1.8",  "y":  "1.0", "Y": "1.5708"},
+}
 
+
+def generate_launch_description() -> LaunchDescription:
+    pkg_share   = get_package_share_directory("fenrir_sim")
+    urdf_xacro  = os.path.join(pkg_share, "description", "fenrir.urdf.xacro")
+    bridge_yaml = os.path.join(pkg_share, "config",      "ros_gz_bridge.yaml")
+
+    world_arg = DeclareLaunchArgument(
+        "world", default_value="corridor_straight.sdf",
+        description="One of corridor_{straight,loop,double_loop}.sdf in worlds/.")
     rviz_arg = DeclareLaunchArgument(
         "rviz", default_value="false",
         description="Open RViz2 alongside Gazebo.")
     headless_arg = DeclareLaunchArgument(
         "headless", default_value="false",
-        description="Run gz_sim with -s -r (no GUI).")
+        description="Run gz_sim with -s (no GUI).")
     use_sim_time_arg = DeclareLaunchArgument(
         "use_sim_time", default_value="true",
         description="Use Gazebo simulation clock.")
 
-    # ---- gz_sim ------------------------------------------------------------
-    # Compose gz_args at launch time: `-r` to start running immediately,
-    # plus `-s` (server-only / no GUI) when `headless:=true`.
     def _gz_sim(context):
+        world_filename = LaunchConfiguration("world").perform(context)
+        world_path = os.path.join(pkg_share, "worlds", world_filename)
         headless = LaunchConfiguration("headless").perform(context)
         flags = "-s -r" if headless.lower() == "true" else "-r"
         return [IncludeLaunchDescription(
@@ -69,10 +81,6 @@ def generate_launch_description() -> LaunchDescription:
         )]
     gz_sim = OpaqueFunction(function=_gz_sim)
 
-    # ---- robot_state_publisher --------------------------------------------
-    # xacro renders the URDF at launch time so dimension tweaks don't need
-    # a full rebuild. The ParameterValue(value_type=str) wrap is mandatory:
-    # without it, launch tries to parse the rendered XML as YAML and dies.
     robot_description = ParameterValue(
         Command(["xacro ", urdf_xacro]),
         value_type=str,
@@ -87,43 +95,42 @@ def generate_launch_description() -> LaunchDescription:
         }],
     )
 
-    # ---- spawn the robot in the gz world ----------------------------------
-    spawn = Node(
-        package="ros_gz_sim",
-        executable="create",
-        arguments=[
-            "-name", "fenrir",
-            "-topic", "robot_description",
-            "-x", "-1.5", "-y", "-1.0", "-z", "0.05",
-            "-Y", "0.0",   # facing +x along the bottom straight
-        ],
-        output="screen",
-    )
+    def _spawn(context):
+        world_filename = LaunchConfiguration("world").perform(context)
+        pose = SPAWN_POSES.get(world_filename, SPAWN_POSES["corridor_straight.sdf"])
+        return [Node(
+            package="ros_gz_sim",
+            executable="create",
+            arguments=[
+                "-name", "fenrir",
+                "-topic", "robot_description",
+                "-x", pose["x"], "-y", pose["y"], "-z", "0.05",
+                "-Y", pose["Y"],
+            ],
+            output="screen",
+        )]
+    spawn = OpaqueFunction(function=_spawn)
 
-    # ---- ros_gz_bridge: native gz <-> ROS 2 topic types -------------------
     bridge = Node(
         package="ros_gz_bridge",
         executable="parameter_bridge",
-        arguments=["--ros-args", "-p",
-                   f"config_file:={bridge_yaml}"],
+        arguments=["--ros-args", "-p", f"config_file:={bridge_yaml}"],
         parameters=[{"use_sim_time": LaunchConfiguration("use_sim_time")}],
         output="screen",
     )
 
-    # ---- motor_bridge: /bpc_prp_robot/set_motor_speeds -> /cmd_vel --------
     motor_bridge = Node(
         package="fenrir_sim",
         executable="motor_bridge",
         output="screen",
         parameters=[{
-            "wheel_separation": 0.20,
+            "wheel_separation": 0.12,
             "watchdog_seconds": 1.0,
             "publish_period":   0.05,
             "use_sim_time": LaunchConfiguration("use_sim_time"),
         }],
     )
 
-    # ---- line_sensor_bridge: floor_camera -> /bpc_prp_robot/line_sensors --
     line_sensor_bridge = Node(
         package="fenrir_sim",
         executable="line_sensor_bridge",
@@ -138,8 +145,6 @@ def generate_launch_description() -> LaunchDescription:
         }],
     )
 
-    # ---- lidar_bridge: gz /internal/lidar -> /bpc_prp_robot/lidar ---------
-    # Matches the real Fenrir's CW + sample-0-backward mounting.
     lidar_bridge = Node(
         package="fenrir_sim",
         executable="lidar_bridge",
@@ -147,7 +152,6 @@ def generate_launch_description() -> LaunchDescription:
         parameters=[{"use_sim_time": LaunchConfiguration("use_sim_time")}],
     )
 
-    # ---- optional RViz2 ---------------------------------------------------
     rviz = Node(
         package="rviz2",
         executable="rviz2",
@@ -156,7 +160,6 @@ def generate_launch_description() -> LaunchDescription:
         output="screen",
     )
 
-    # ---- env: tell gz where to find the world / model meshes --------------
     gz_resource = SetEnvironmentVariable(
         "GZ_SIM_RESOURCE_PATH",
         os.path.join(pkg_share, "worlds")
@@ -164,6 +167,7 @@ def generate_launch_description() -> LaunchDescription:
     )
 
     return LaunchDescription([
+        world_arg,
         rviz_arg,
         headless_arg,
         use_sim_time_arg,

@@ -1,0 +1,220 @@
+<?xml version="1.0"?>
+<!--
+  Corridor following — Track 3: double loop (figure-8).
+  Per BPC-PRP Lab 12 (corridor midterm). Cell = 0.40 m.
+
+  Two 3×3-cell loops sharing one corner cell.  Each loop has a 1-cell
+  inner wall; the corridor between outer and inner is 0.40 m wide.
+
+  Cell grid (5×5, cell (i,j) extends from i*0.4 to (i+1)*0.4 in x):
+    Loop B (bottom-left) outer = cells (0,0)..(2,2), inner wall at (1,1)
+    Loop A (top-right)   outer = cells (2,2)..(4,4), inner wall at (3,3)
+    Shared open cell (2,2)
+
+  Spawn: (1.8, 1.0, 0.05) facing +y  (right edge of loop A, heading north)
+-->
+<sdf version="1.10">
+  <world name="corridor_double_loop">
+
+    <physics name="default_physics" default="0" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin filename="gz-sim-physics-system"           name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system"     name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system"           name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-imu-system"               name="gz::sim::systems::Imu"/>
+
+    <scene>
+      <ambient>0.6 0.6 0.6 1</ambient>
+      <background>0.9 0.9 0.95 1</background>
+    </scene>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.9 0.9 0.9 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.3 0.3 -1</direction>
+    </light>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>10 10</size></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>10 10</size></plane></geometry>
+          <material>
+            <ambient>0.95 0.95 0.95 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ============================================================ -->
+    <!--  Outer perimeter walls — 8 segments forming the figure-8     -->
+    <!--  boundary (an L-shape stair).                                 -->
+    <!-- ============================================================ -->
+
+    <!-- Loop B bottom: y=0, x ∈ [0, 1.2] -->
+    <model name="outer_b_bottom">
+      <static>true</static><pose>0.6 0.0 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>1.2 0.02 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>1.2 0.02 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Loop B right (lower part): x=1.2, y ∈ [0, 0.8] -->
+    <model name="outer_b_right">
+      <static>true</static><pose>1.2 0.4 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.02 0.8 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.02 0.8 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Loop A bottom (connector): y=0.8, x ∈ [1.2, 2.0] -->
+    <model name="outer_a_bottom">
+      <static>true</static><pose>1.6 0.8 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.8 0.02 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.8 0.02 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Loop A right: x=2.0, y ∈ [0.8, 2.0] -->
+    <model name="outer_a_right">
+      <static>true</static><pose>2.0 1.4 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.02 1.2 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.02 1.2 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Loop A top: y=2.0, x ∈ [0.8, 2.0] -->
+    <model name="outer_a_top">
+      <static>true</static><pose>1.4 2.0 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>1.2 0.02 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>1.2 0.02 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Loop A left (upper part): x=0.8, y ∈ [1.2, 2.0] -->
+    <model name="outer_a_left">
+      <static>true</static><pose>0.8 1.6 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.02 0.8 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.02 0.8 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Loop B top (connector): y=1.2, x ∈ [0, 0.8] -->
+    <model name="outer_b_top">
+      <static>true</static><pose>0.4 1.2 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.8 0.02 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.8 0.02 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Loop B left: x=0, y ∈ [0, 1.2] -->
+    <model name="outer_b_left">
+      <static>true</static><pose>0.0 0.6 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.02 1.2 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.02 1.2 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- ============================================================ -->
+    <!--  Inner blocks — one cell each, at loop centers.              -->
+    <!--  Hollow: 4 narrow wall segments forming a 0.4 × 0.4 ring.    -->
+    <!-- ============================================================ -->
+
+    <!-- Loop B inner (cell (1,1), center (0.6, 0.6)). -->
+    <model name="inner_b_south">
+      <static>true</static><pose>0.6 0.4 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.4 0.02 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.4 0.02 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="inner_b_north">
+      <static>true</static><pose>0.6 0.8 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.4 0.02 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.4 0.02 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="inner_b_west">
+      <static>true</static><pose>0.4 0.6 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.02 0.4 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.02 0.4 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="inner_b_east">
+      <static>true</static><pose>0.8 0.6 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.02 0.4 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.02 0.4 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Loop A inner (cell (3,3), center (1.4, 1.4)). -->
+    <model name="inner_a_south">
+      <static>true</static><pose>1.4 1.2 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.4 0.02 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.4 0.02 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="inner_a_north">
+      <static>true</static><pose>1.4 1.6 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.4 0.02 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.4 0.02 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="inner_a_west">
+      <static>true</static><pose>1.2 1.4 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.02 0.4 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.02 0.4 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="inner_a_east">
+      <static>true</static><pose>1.6 1.4 0.15 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.02 0.4 0.3</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.02 0.4 0.3</size></box></geometry>
+          <material><ambient>0.75 0.2 0.2 1</ambient><diffuse>0.75 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>

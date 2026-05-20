@@ -15,7 +15,9 @@
 #       Stubs for later.
 
 # ---- Lidar (RPLiDAR A1) -----------------------------------------------------
-- ros_topic_name: "/bpc_prp_robot/lidar"
+# Bridge gz to an /internal/ topic; the lidar_bridge node then transforms it
+# to the Fenrir-mounting CW convention and republishes /bpc_prp_robot/lidar.
+- ros_topic_name: "/internal/lidar"
   gz_topic_name:  "/lidar"
   ros_type_name:  "sensor_msgs/msg/LaserScan"
   gz_type_name:   "gz.msgs.LaserScan"
