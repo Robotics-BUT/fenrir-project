@@ -23,6 +23,7 @@ sim**, then expand to corridor and maze worlds.
 | `line.launch.py` | ✅ |
 | `corridor.launch.py` / `maze.launch.py` | ❌ T4.5 follow-up |
 | Sim Docker image (`docker/sim/Dockerfile`) | ✅ |
+| **End-to-end closed-loop demo** (`examples/line_follower.py`) | ✅ runs; drives along straight line segments; loses 90° corners on the placeholder track |
 
 ## How to run
 
@@ -149,6 +150,41 @@ for grading or quantitative arguments.
   exam). Maze STLs are in `3d-print/maze/`; use as gz models.
 - **T4.5** — `corridor.launch.py`, `maze.launch.py`.
 - **T4.6** — add a "Simulation" section to every hardware lab in `BPC-PRP/`.
+
+## End-to-end demo
+
+A tiny PID line follower in `examples/line_follower.py` proves the
+contract closes a real control loop. It uses only `/bpc_prp_robot/*`
+topics — no sim-specific shortcuts. Run it alongside the sim:
+
+```bash
+# terminal 1 — inside bpc-prp-sim:jazzy:
+ros2 launch fenrir_sim line.launch.py headless:=true
+
+# terminal 2 — same container or any ROS 2 Jazzy host:
+python3 /workspace/simulation/examples/line_follower.py
+```
+
+What the 30-second closed-loop test (sim + line_follower) showed:
+
+- Robot drives forward at ~0.2 m/s, ~6 m in 30 s.
+- 49 % of time **both** sensors are on the line (robot perfectly
+  centered); 53 % at least one is.
+- Average sensor reading is 455 — closer to ON-line (150) than
+  OFF-line (~700), confirming the robot spends most of its time
+  near the line.
+- **Loses 90° corners on the current rectangular placeholder track.**
+  This is a track-geometry issue, not a contract issue — replace the
+  placeholder oval with a curved track (or use a smarter controller)
+  and a simple PID would track all the way around.
+
+For a course-grade sim that survives the full lab, two cheap follow-ups:
+
+1. Replace `line.sdf` straight-segment "corners" with curved segments
+   (or import the actual `tracks.drawio` geometry the course uses).
+2. Try the `bpc-prp-devel` `solution` package (or its `controller`
+   teacher reference) against the sim — that is the strongest possible
+   validation, since it is the same code that runs on the real robot.
 
 ### Line-sensor calibration notes
 
