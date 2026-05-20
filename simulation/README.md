@@ -15,17 +15,19 @@ drives the simulated robot around the line.sdf track using the same
 | Diff-drive + lidar + camera + IMU plugins | ✅ wired into the URDF |
 | Ultrasounds (forward + 45° L + 45° R, mid-height) | ✅ URDF sensors in place, gz topics `/us_{front,left,right}`. T4.3 follow-up bridges them to `/bpc_prp_robot/ultrasounds` |
 | Line sensors | ✅ downward floor-camera + line_sensor_bridge samples two pixel positions slightly left and right of the front leg. Polarity matches real ADC: **white floor → low, black line → high**, range 0..1023 |
-| Encoders / buttons / RGB LEDs | ❌ T4.3 follow-up — bridge stubs needed |
+| LiDAR (Fenrir mounting: 180° backward, CW scan) | ✅ lidar_bridge re-orders the gz scan so `ranges[0]` = backward, `ranges[N/4]` = LEFT, `ranges[N/2]` = forward, `ranges[3N/4]` = RIGHT, with `angle_increment` = −2π/N |
+| Encoders / buttons / RGB LEDs / ultrasounds | ❌ T4.3 follow-up — bridge stubs needed |
 | `empty.sdf` (spawn-test world) | ✅ |
 | `line.sdf` (line-following) | ✅ first cut, simple rectangle with 90° corners; the actual `tracks.drawio` geometry is a separate follow-up |
-| `corridor.sdf` | ❌ T4.4 follow-up |
+| `corridor_{straight,loop,double_loop}.sdf` | ✅ Lab 12 exam tracks (40 cm cells, 30 cm tall red walls, hollow inner cells) |
 | `maze.sdf` | ❌ T4.4 follow-up |
 | `motor_bridge` node (set_motor_speeds ↔ cmd_vel + 1 s watchdog) | ✅ |
-| `ros_gz_bridge` config | ✅ for lidar / camera / IMU / floor_camera / cmd_vel / odom / TF / clock |
+| `ros_gz_bridge` config | ✅ for camera / IMU / floor_camera / lidar (→ /internal/lidar) / cmd_vel / odom / TF / clock |
 | `line.launch.py` | ✅ |
-| `corridor.launch.py` / `maze.launch.py` | ❌ T4.5 follow-up |
+| `corridor.launch.py` (with `world:=…` arg) | ✅ |
+| `maze.launch.py` | ❌ T4.5 follow-up |
 | Sim Docker image (`docker/sim/Dockerfile`) | ✅ |
-| **End-to-end closed-loop demo** (`examples/line_follower.py`) | ✅ PID + lost-line search state. Drives the line track at ~0.09 m/s |
+| **End-to-end closed-loop demos** | ✅ `examples/line_follower.py` (P-only line PID) + `examples/corridor_follower.py` (lidar-based corridor centering with turn-at-corner) |
 
 ## How to run
 
@@ -149,6 +151,7 @@ files in `fenrir-project/3d-print/robot/`:
 | Wheel width | 30 mm | from `wheel.STL` |
 | Interwheel base | 120 mm | spec |
 | LiDAR | XY-center, 20 mm above chassis top, 12 Hz, 360 samples | RPLiDAR A1 spec |
+| LiDAR mounting | rotated 180° about z (0° points BACKWARD); scan is **clockwise** | real Fenrir hardware (Adam 2026-05-20) |
 | Camera | front-top-edge of chassis, pitched 45° down, 640×480 @ 30 Hz, ~60° FOV | RPi camera |
 | Ultrasounds (3×) | front face, mid-height, +5 mm stick-out; left/right at front-corners with ±45° yaw | spec |
 | Line sensors | mounted at front-leg X (caster_front_x = 65 mm forward of center), centerline; two virtual samples ~2 cm apart on the floor | spec ("slightly left and right from the front leg") |
@@ -188,6 +191,67 @@ All multi-element `/bpc_prp_robot/*` topics are **left → right**:
   exam). Maze STLs are in `3d-print/maze/`; use as gz models.
 - **T4.5** — `corridor.launch.py`, `maze.launch.py`.
 - **T4.6** — add a "Simulation" section to every hardware lab in `BPC-PRP/`.
+
+## Corridor following (Lab 12)
+
+Three exam tracks per BPC-PRP Lab 12. 40 cm × 40 cm grid cells, red
+walls 30 cm tall, hollow inner cells (4 narrow walls each).
+
+| World | Layout |
+|---|---|
+| `corridor_straight.sdf` | 5 cells long × 1 cell wide, dead-ends at both ends |
+| `corridor_loop.sdf` | 5×5 cells outer wall + 3×3 cells hollow inner ring → 0.4 m corridor ring |
+| `corridor_double_loop.sdf` | Figure-8: two 3×3 loops sharing one corner cell, each with a hollow inner cell |
+
+```bash
+ros2 launch fenrir_sim corridor.launch.py world:=corridor_straight.sdf
+ros2 launch fenrir_sim corridor.launch.py world:=corridor_loop.sdf
+ros2 launch fenrir_sim corridor.launch.py world:=corridor_double_loop.sdf
+```
+
+### Lidar contract (Fenrir-specific)
+
+The real Fenrir RPLiDAR is mounted **180° rotated about z** (0° points
+backward) and its scan rotates **clockwise**. The `lidar_bridge` node
+matches that contract on the simulated `/bpc_prp_robot/lidar`:
+
+```
+ranges[0]              distance directly BEHIND the robot
+ranges[N/4]            distance to robot's LEFT
+ranges[N/2]            distance directly AHEAD
+ranges[3*N/4]          distance to robot's RIGHT
+angle_min       = +π
+angle_increment = -2π / N         (negative → CW)
+```
+
+Sample 0 is preserved as backward; the rest of the array is reversed
+to flip CCW (gz native) → CW. Index-based access (`ranges[N/2]` etc.)
+is the recommended way to read the scan.
+
+### Corridor follower demo (`examples/corridor_follower.py`)
+
+State machine on three lidar windows (left, forward, right, each
+averaged across ±3 samples):
+
+| State | When | Behaviour |
+|---|---|---|
+| `TURN-LEFT` / `TURN-RIGHT` | forward < `turn_trigger_dist` (0.35 m default) | rotate in place toward the **wider** side until forward clears |
+| `BALANCE` | both walls within `wall_limit` (0.40 m default) | PID on `right − left` to center the robot |
+| `HUG-LEFT` / `HUG-RIGHT` | only one wall within `wall_limit` | keep `side_target_dist` (0.18 m default) from that wall |
+| `OPEN` | no walls within `wall_limit` | drive straight |
+
+Key trick: **walls farther than `wall_limit` (1 cell) are ignored** for
+steering. Without this clamp the controller balances a 2 m open
+direction against a 20 cm wall and steers itself into a corner.
+
+Verified on all three tracks:
+
+- `corridor_straight`: drives forward centered, slows and stops at the
+  north dead-end.
+- `corridor_loop`: completes the ring, picking the wider side at each
+  90° corner.
+- `corridor_double_loop`: navigates the figure-8 across the shared
+  cell, transitioning HUG ↔ BALANCE as the lidar topology changes.
 
 ## End-to-end demo (line following)
 
