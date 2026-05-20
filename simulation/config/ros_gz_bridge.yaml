@@ -1,0 +1,73 @@
+# ros_gz_bridge configuration for the Fenrir sim (Phase 4).
+#
+# Translates the Gazebo Harmonic topics published by the URDF/sensor
+# plugins into the /bpc_prp_robot/* names the real robot exposes.
+#
+# Topics NOT in this file (because they need custom logic, not 1:1):
+#   /bpc_prp_robot/set_motor_speeds  →  /cmd_vel
+#       handled by fenrir_sim/motor_bridge.py
+#   /bpc_prp_robot/line_sensors
+#       T4.2 follow-up: needs custom plugin or downward camera + image
+#       processing. Bridge currently emits no message.
+#   /bpc_prp_robot/encoders
+#       T4-vs follow-up: derive from gz joint_states (encoder ticks).
+#   /bpc_prp_robot/ultrasounds / buttons / rgb_leds / current_probes
+#       Stubs for later.
+
+# ---- Lidar (RPLiDAR A1) -----------------------------------------------------
+- ros_topic_name: "/bpc_prp_robot/lidar"
+  gz_topic_name:  "/lidar"
+  ros_type_name:  "sensor_msgs/msg/LaserScan"
+  gz_type_name:   "gz.msgs.LaserScan"
+  direction:      GZ_TO_ROS
+
+# ---- Camera (640x480, bgr8) -------------------------------------------------
+- ros_topic_name: "/bpc_prp_robot/camera"
+  gz_topic_name:  "/camera"
+  ros_type_name:  "sensor_msgs/msg/Image"
+  gz_type_name:   "gz.msgs.Image"
+  direction:      GZ_TO_ROS
+
+- ros_topic_name: "/bpc_prp_robot/camera/camera_info"
+  gz_topic_name:  "/camera_info"
+  ros_type_name:  "sensor_msgs/msg/CameraInfo"
+  gz_type_name:   "gz.msgs.CameraInfo"
+  direction:      GZ_TO_ROS
+
+# ---- IMU (MPU6050) ----------------------------------------------------------
+- ros_topic_name: "/bpc_prp_robot/imu"
+  gz_topic_name:  "/imu"
+  ros_type_name:  "sensor_msgs/msg/Imu"
+  gz_type_name:   "gz.msgs.IMU"
+  direction:      GZ_TO_ROS
+
+# ---- Differential-drive plumbing (internal, not in the robot contract) ------
+- ros_topic_name: "/cmd_vel"
+  gz_topic_name:  "/cmd_vel"
+  ros_type_name:  "geometry_msgs/msg/Twist"
+  gz_type_name:   "gz.msgs.Twist"
+  direction:      ROS_TO_GZ
+
+- ros_topic_name: "/odom"
+  gz_topic_name:  "/odom"
+  ros_type_name:  "nav_msgs/msg/Odometry"
+  gz_type_name:   "gz.msgs.Odometry"
+  direction:      GZ_TO_ROS
+
+- ros_topic_name: "/joint_states"
+  gz_topic_name:  "/joint_states"
+  ros_type_name:  "sensor_msgs/msg/JointState"
+  gz_type_name:   "gz.msgs.Model"
+  direction:      GZ_TO_ROS
+
+- ros_topic_name: "/tf"
+  gz_topic_name:  "/tf"
+  ros_type_name:  "tf2_msgs/msg/TFMessage"
+  gz_type_name:   "gz.msgs.Pose_V"
+  direction:      GZ_TO_ROS
+
+- ros_topic_name: "/clock"
+  gz_topic_name:  "/clock"
+  ros_type_name:  "rosgraph_msgs/msg/Clock"
+  gz_type_name:   "gz.msgs.Clock"
+  direction:      GZ_TO_ROS
