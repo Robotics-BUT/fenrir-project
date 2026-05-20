@@ -2,28 +2,30 @@
 
 Gazebo Harmonic + ROS 2 Jazzy simulation of the Fenrir robot.
 
-This is the **vertical slice** described in `bpc-prp-devel/MODERNIZATION_ROADMAP.md`
-§8 de-risking note: enough robot + sensors + bridge to do **line following in
-sim**, then expand to corridor and maze worlds.
+The vertical slice described in `bpc-prp-devel/MODERNIZATION_ROADMAP.md`
+§8 de-risking note has shipped end-to-end: a tunable PID line follower
+drives the simulated robot around the line.sdf track using the same
+`/bpc_prp_robot/*` contract a real robot would expose.
 
 ## Status
 
 | Piece | State |
 |---|---|
-| Robot description (URDF/xacro) | ✅ first cut, with placeholder dimensions to be refined from the SolidWorks CAD |
+| Robot description (URDF/xacro) | ✅ dimensions match the real Fenrir spec (15 cm cube chassis, 12 cm wheelbase, 33 mm radius wheels, 30 mm wheel width, front + rear casters) |
 | Diff-drive + lidar + camera + IMU plugins | ✅ wired into the URDF |
-| Line sensors | ✅ downward camera + line_sensor_bridge node samples brightness at two pixel positions; publishes UInt16MultiArray[2] in 0..1023, white floor → high, line → low |
-| Encoders / ultrasounds / buttons / LEDs | ❌ not implemented — bridge stubs needed |
+| Ultrasounds (forward + 45° L + 45° R, mid-height) | ✅ URDF sensors in place, gz topics `/us_{front,left,right}`. T4.3 follow-up bridges them to `/bpc_prp_robot/ultrasounds` |
+| Line sensors | ✅ downward floor-camera + line_sensor_bridge samples two pixel positions slightly left and right of the front leg. Polarity matches real ADC: **white floor → low, black line → high**, range 0..1023 |
+| Encoders / buttons / RGB LEDs | ❌ T4.3 follow-up — bridge stubs needed |
 | `empty.sdf` (spawn-test world) | ✅ |
-| `line.sdf` (line-following) | ✅ first cut, simple oval; refine with `tracks.drawio` geometry |
+| `line.sdf` (line-following) | ✅ first cut, simple rectangle with 90° corners; the actual `tracks.drawio` geometry is a separate follow-up |
 | `corridor.sdf` | ❌ T4.4 follow-up |
 | `maze.sdf` | ❌ T4.4 follow-up |
-| `motor_bridge` node (set_motor_speeds ↔ cmd_vel + watchdog) | ✅ |
-| `ros_gz_bridge` config | ✅ for lidar / camera / IMU / cmd_vel / odom / TF / clock |
+| `motor_bridge` node (set_motor_speeds ↔ cmd_vel + 1 s watchdog) | ✅ |
+| `ros_gz_bridge` config | ✅ for lidar / camera / IMU / floor_camera / cmd_vel / odom / TF / clock |
 | `line.launch.py` | ✅ |
 | `corridor.launch.py` / `maze.launch.py` | ❌ T4.5 follow-up |
 | Sim Docker image (`docker/sim/Dockerfile`) | ✅ |
-| **End-to-end closed-loop demo** (`examples/line_follower.py`) | ✅ runs; drives along straight line segments; loses 90° corners on the placeholder track |
+| **End-to-end closed-loop demo** (`examples/line_follower.py`) | ✅ PID + lost-line search state. Drives the line track at ~0.09 m/s |
 
 ## How to run
 
@@ -81,18 +83,26 @@ docker run --rm -i \
 Standard `/bpc_prp_robot/*` contract. From another terminal in the same
 container or from a host with ROS 2 Jazzy:
 
+All multi-element `/bpc_prp_robot/*` topics are ordered **left-to-right**:
+
+| Topic | Data layout |
+|---|---|
+| `set_motor_speeds` | `[left, right]` uint8 ×2 |
+| `line_sensors`     | `[left, right]` uint16 ×2 |
+| `ultrasounds`      | `[left, center, right]` uint8 ×3  *(T4.3 follow-up)* |
+
 ```bash
-# forward, both wheels at half speed (~0.32 m/s):
+# forward, both wheels at ~0.5 m/s (191 = ~0.5 m/s above 127=stop):
 ros2 topic pub --once /bpc_prp_robot/set_motor_speeds \
-    std_msgs/msg/UInt8MultiArray '{data: [191, 191]}'
+    std_msgs/msg/UInt8MultiArray '{data: [191, 191]}'   # [left, right]
 
 # stop:
 ros2 topic pub --once /bpc_prp_robot/set_motor_speeds \
     std_msgs/msg/UInt8MultiArray '{data: [127, 127]}'
 
-# spin left (right wheel forward, left wheel reverse):
+# spin left in place (left wheel reverse, right wheel forward):
 ros2 topic pub --once /bpc_prp_robot/set_motor_speeds \
-    std_msgs/msg/UInt8MultiArray '{data: [191, 63]}'
+    std_msgs/msg/UInt8MultiArray '{data: [63, 191]}'    # [left, right]
 ```
 
 The 1-second watchdog stops the robot if no message arrives — matches the
@@ -126,20 +136,48 @@ real robot                            sim
 whole point. If your code follows a line in `line.launch.py`, it should
 follow a line on the physical Fenrir too — within sensor noise.
 
-## Known assumptions / placeholders (refine before quantitative claims)
+## Robot dimensions and sensor layout
 
-The numbers in `description/fenrir.urdf.xacro` are best-effort estimates:
+Confirmed against the real Fenrir spec (Adam, 2026-05-20) and the STL
+files in `fenrir-project/3d-print/robot/`:
 
-- Chassis 0.16 m × 0.14 m × 0.05 m, mass 0.8 kg.
-- Wheel radius 0.033 m, separation 0.20 m (matches MPC-MAP reference).
-- Lidar at 0.10 m above the chassis, 12 Hz, 360 samples (RPLiDAR A1 spec).
-- Camera 60° FOV, 640×480 at 30 Hz.
-- IMU noise σ = 0.005 rad/s (gyro), 0.02 m/s² (accel). Loosely modelled on
-  MPU6050 datasheet.
+| Quantity | Value | Source |
+|---|---|---|
+| Chassis bounding box | 150 × 150 × 150 mm cube | spec; `plate_*` STLs are 150×150 mm in footprint |
+| Chassis mass (sim estimate) | 1.0 kg | rough, no real weighing yet |
+| Wheel radius | 33 mm | spec (STL says 34 mm — 1 mm tolerance) |
+| Wheel width | 30 mm | from `wheel.STL` |
+| Interwheel base | 120 mm | spec |
+| LiDAR | XY-center, 20 mm above chassis top, 12 Hz, 360 samples | RPLiDAR A1 spec |
+| Camera | front-top-edge of chassis, pitched 45° down, 640×480 @ 30 Hz, ~60° FOV | RPi camera |
+| Ultrasounds (3×) | front face, mid-height, +5 mm stick-out; left/right at front-corners with ±45° yaw | spec |
+| Line sensors | mounted at front-leg X (caster_front_x = 65 mm forward of center), centerline; two virtual samples ~2 cm apart on the floor | spec ("slightly left and right from the front leg") |
+| Casters | front + rear sphere casters at x = ±65 mm, both at ground level | approximates the real `leg_front_2` skid + `leg_rear_2` support + `ball_2` |
 
-Cross-check against the editable SolidWorks CAD in
-`bpc-prp-devel/hw_design/3d_model/` before relying on simulation outputs
-for grading or quantitative arguments.
+Wheel mass, caster radius, IMU noise (σ = 0.005 rad/s gyro, 0.02 m/s²
+accel) and friction (μ = 1.0 wheels, 0.05 casters) are sim defaults
+that still want tuning against the real MPU6050 datasheet and a real
+weigh-in.
+
+The chassis collision is a single solid 15 cm cube — the real Fenrir is
+three plates with pillars and air gaps in between. The simplification
+matters for the LIDAR (which sits above the chassis and scans
+horizontally so the chassis never occludes the beam) and for sensors
+mounted inside the chassis volume (the gpu_lidar would falsely clamp to
+min_range), which is why the ultrasounds stick out 5 mm past the front
+face.
+
+## Topic-ordering convention
+
+All multi-element `/bpc_prp_robot/*` topics are **left → right**:
+
+| Topic | Type | Layout |
+|---|---|---|
+| `set_motor_speeds` | `UInt8MultiArray` | `[left, right]`, 0..255 with 127 = stop |
+| `line_sensors` | `UInt16MultiArray` | `[left, right]`, 0..1023 ADC (white→low, black→high) |
+| `ultrasounds` *(T4.3)* | `UInt8MultiArray` | `[left, center, right]`, cm |
+| `encoders` *(T4.3)* | `UInt32MultiArray` | `[left, right]`, ticks (576 ppr) |
+| `rgb_leds` *(T4.3)* | `UInt8MultiArray` | `[led0_r, led0_g, led0_b, led1_r, ...]` |
 
 ## Follow-up work (roadmap §8)
 
@@ -151,40 +189,61 @@ for grading or quantitative arguments.
 - **T4.5** — `corridor.launch.py`, `maze.launch.py`.
 - **T4.6** — add a "Simulation" section to every hardware lab in `BPC-PRP/`.
 
-## End-to-end demo
+## End-to-end demo (line following)
 
-A tiny PID line follower in `examples/line_follower.py` proves the
-contract closes a real control loop. It uses only `/bpc_prp_robot/*`
-topics — no sim-specific shortcuts. Run it alongside the sim:
+`examples/line_follower.py` is a small two-state controller that proves
+the contract closes a real control loop. It uses only `/bpc_prp_robot/*`
+topics — no sim-specific shortcuts. Same code would run on the real
+robot.
 
 ```bash
 # terminal 1 — inside bpc-prp-sim:jazzy:
+ros2 launch fenrir_sim line.launch.py            # with GUI
+# or:
 ros2 launch fenrir_sim line.launch.py headless:=true
 
-# terminal 2 — same container or any ROS 2 Jazzy host:
+# terminal 2 — same container (docker exec) or any ROS 2 Jazzy host:
 python3 /workspace/simulation/examples/line_follower.py
 ```
 
-What the 30-second closed-loop test (sim + line_follower) showed:
+### Controller logic
 
-- Robot drives forward at ~0.2 m/s, ~6 m in 30 s.
-- 49 % of time **both** sensors are on the line (robot perfectly
-  centered); 53 % at least one is.
-- Average sensor reading is 455 — closer to ON-line (150) than
-  OFF-line (~700), confirming the robot spends most of its time
-  near the line.
-- **Loses 90° corners on the current rectangular placeholder track.**
-  This is a track-geometry issue, not a contract issue — replace the
-  placeholder oval with a curved track (or use a smarter controller)
-  and a simple PID would track all the way around.
+```
+TRACKING  if max(line_sensors) > threshold   # black line under at least one sensor
+          err = right - left                 # > 0 when line is to the right
+          u   = kp*err + kd*(err - prev_err) # current default: kp=0.075, kd=0
+          motors = [127 + base + u,          # left
+                    127 + base - u]          # right
 
-For a course-grade sim that survives the full lab, two cheap follow-ups:
+LOST      else                                # both sensors over white
+          # rotate toward last-known line direction at a slow crawl
+          u    = sign(last_err) * search_turn
+          base = search_base
+```
 
-1. Replace `line.sdf` straight-segment "corners" with curved segments
-   (or import the actual `tracks.drawio` geometry the course uses).
-2. Try the `bpc-prp-devel` `solution` package (or its `controller`
-   teacher reference) against the sim — that is the strongest possible
-   validation, since it is the same code that runs on the real robot.
+Current defaults (gentle, smooth, slow):
+
+| Parameter | Value | Note |
+|---|---|---|
+| `base_byte_above_stop` | 9 | ~0.09 m/s forward — half the original demo speed |
+| `kp` | 0.075 | gentle P-only, tuned 2026-05-20 |
+| `kd` | 0.0 | D off |
+| `line_threshold` | 400 | mid-scale of 0..1023 |
+| `search_turn` | 55 | strong fixed turn while LOST |
+| `search_base` | 8 | slow forward crawl while LOST |
+
+### Limits of the current demo
+
+The placeholder `line.sdf` is a rectangle with sharp 90° corners. A
+P-only controller is gentle enough to track straights smoothly and to
+recover from minor drift via the LOST-state rotate-and-search behaviour,
+but the corners are still hard. Two cheap follow-ups close the gap:
+
+1. Replace the placeholder track with curved segments or the actual
+   `tracks.drawio` geometry the course uses.
+2. Try the `bpc-prp-devel` `solution` package against the sim — that is
+   the strongest validation, since it is the same code real students
+   run on the real robot.
 
 ### Line-sensor calibration notes
 
@@ -192,14 +251,22 @@ The line-sensor bridge has tunable parameters in `launch/line.launch.py`:
 
 | Param | Default | What it does |
 |---|---|---|
-| `left_col_frac`, `right_col_frac` | 0.25, 0.75 | Pixel column (as a fraction of image width) where each virtual sensor samples. Default puts them ~5 cm apart on the floor. Real Fenrir IR sensors are 2–3 cm apart — tighten to ~0.4 / 0.6 once that's measured. |
-| `sample_radius` | 2 | Half-side of a square (2r+1 px) window averaged at each sample point. Smooths noise. |
+| `left_col_frac`, `right_col_frac` | 0.25, 0.75 | Pixel column (as a fraction of image width) where each virtual sensor samples. Default puts them ~2.3 cm apart on the floor; tighten if the real Fenrir IR sensors turn out to be closer together. |
+| `sample_radius` | 2 | Half-side of a (2r+1)² px window averaged at each sample point. Smooths noise. |
 | `row_frac` | 0.5 | Image row to sample; 0.5 = center, directly under the front of the robot. |
 | `max_reading` | 1023 | ADC scale; matches MODERNIZATION_ROADMAP §B. |
 
-Observed contrast in the `line.sdf` world: ON-line ≈150, OFF-line
-≈600–750 (lighting non-uniform across the floor). 4–5× contrast — fine for
-threshold-based line following. **Polarity**: white floor → high reading,
-line → low. If the real Fenrir ADC inverts this, flip the
-`_brightness_to_reading` line in `fenrir_sim/line_sensor_bridge.py` — one
-line, no other contract change.
+Observed readings in the `line.sdf` world after the 2026-05-20 polarity
+flip:
+
+| Position | Reading | Comment |
+|---|---|---|
+| ON line | `[800, 810]` | both high, ~80% of full scale |
+| OFF line, well-lit | `[240, 270]` | both low, white floor |
+| OFF line, shaded | `[130, 160]` | lighting non-uniform; threshold-based code still discriminates cleanly |
+
+**Polarity** (matches real Fenrir ADC): white floor → low reading,
+black line → high reading. If real hardware turns out to be inverted,
+flip the one-line formula in
+`fenrir_sim/line_sensor_bridge.py::_brightness_to_reading` — no other
+contract change.

@@ -2,40 +2,72 @@
 <!--
   Fenrir robot description for Gazebo Harmonic + ROS 2 Jazzy (Phase 4).
 
-  ALL DIMENSIONS BELOW ARE PLACEHOLDERS to be refined against the editable
-  SolidWorks CAD in bpc-prp-devel/hw_design/3d_model/. Values are best-effort
-  estimates based on the 3D-print STL inventory + the BPC-PRP MPC-MAP
-  reference (interwheel = 0.2 m, max body speed = 1 m/s). Cross-check before
-  using sim outputs for any quantitative claim.
+  Dimensions per spec confirmed by Adam Ligocki 2026-05-20:
+    * chassis     : 15 × 15 × 15 cm cube
+    * wheelbase   : 12 cm (interwheel)
+    * wheel       : 33 mm radius (66 mm diameter)
+    * lidar       : XY-center of the robot, on top of the chassis
+    * camera      : RPi camera, front-top of chassis, pitched 45° down
+    * ultrasounds : 3× — forward, +45° left, -45° right, mid-height
+  Wheel width, motor / caster mass, and other masses remain estimates;
+  refine from the editable SolidWorks CAD in bpc-prp-devel/hw_design/.
 
   Coordinate convention: +x forward, +y left, +z up. SI units (m, kg, s, rad).
+  base_link origin sits at wheel-axle level; chassis bottom sits at base_link z=0.
 -->
 <robot name="fenrir" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!-- ============================================================== -->
-  <!--  Dimensions (PLACEHOLDERS — refine from CAD)                    -->
+  <!--  Dimensions                                                     -->
   <!-- ============================================================== -->
-  <xacro:property name="chassis_length" value="0.16"/>     <!-- m  -->
-  <xacro:property name="chassis_width"  value="0.14"/>     <!-- m  -->
-  <xacro:property name="chassis_height" value="0.05"/>     <!-- m  -->
-  <xacro:property name="chassis_mass"   value="0.8"/>       <!-- kg -->
+  <xacro:property name="chassis_length" value="0.15"/>     <!-- m  -->
+  <xacro:property name="chassis_width"  value="0.15"/>     <!-- m  -->
+  <xacro:property name="chassis_height" value="0.15"/>     <!-- m  -->
+  <xacro:property name="chassis_mass"   value="1.0"/>       <!-- kg, estimate -->
 
-  <xacro:property name="wheel_radius"        value="0.033"/>  <!-- m  -->
-  <xacro:property name="wheel_width"         value="0.020"/>  <!-- m  -->
-  <xacro:property name="wheel_mass"          value="0.05"/>    <!-- kg -->
-  <xacro:property name="wheel_separation"    value="0.20"/>    <!-- m, interwheel, BPC-PRP reference -->
+  <xacro:property name="wheel_radius"        value="0.033"/>  <!-- m, spec; STL 34mm -->
+  <xacro:property name="wheel_width"         value="0.030"/>  <!-- m, from wheel.STL -->
+  <xacro:property name="wheel_mass"          value="0.05"/>    <!-- kg, estimate -->
+  <xacro:property name="wheel_separation"    value="0.12"/>    <!-- m, interwheel -->
   <xacro:property name="wheel_axle_x_offset" value="0.0"/>     <!-- m, axle vs base origin -->
   <xacro:property name="wheel_axle_z_offset" value="0.0"/>     <!-- m, axle height vs base origin -->
 
+  <!-- Real Fenrir has a FRONT skid (leg_front_2.STL) and a REAR support +
+       ball caster (leg_rear_2.STL + ball_2.STL). With a 15 cm chassis the
+       camera weight up front would tip the robot if it only had a rear
+       caster, so the sim mirrors the design with two passive casters. -->
   <xacro:property name="caster_radius" value="0.012"/>     <!-- m  -->
   <xacro:property name="caster_mass"   value="0.01"/>      <!-- kg -->
-  <xacro:property name="caster_x"      value="-0.07"/>     <!-- m, behind axle -->
+  <xacro:property name="caster_front_x" value="0.065"/>    <!-- m, near front of 15cm chassis -->
+  <xacro:property name="caster_rear_x"  value="-0.065"/>   <!-- m, near rear of 15cm chassis -->
 
-  <xacro:property name="lidar_height"     value="0.10"/>   <!-- m above base -->
-  <xacro:property name="camera_height"    value="0.13"/>   <!-- m above base -->
-  <xacro:property name="camera_x_offset"  value="0.05"/>   <!-- m, forward of base origin -->
-  <xacro:property name="line_sensor_x"    value="0.07"/>   <!-- m, forward of base origin -->
-  <xacro:property name="line_sensor_z"    value="-0.01"/>  <!-- m, below base origin (close to ground) -->
+  <!-- ===== Sensor placements (all relative to base_link) ===== -->
+  <!-- LiDAR: XY-center, on TOP of chassis with a small mount stub. -->
+  <xacro:property name="lidar_x"      value="0.0"/>
+  <xacro:property name="lidar_y"      value="0.0"/>
+  <xacro:property name="lidar_z"      value="${chassis_height + 0.020}"/>
+
+  <!-- Camera: front-top of chassis, pitched 45° down toward floor.
+       At z=chassis_height the camera sits at the top edge. Pitch = +π/4
+       rotates the camera_link's +x (gz "forward") down by 45°. -->
+  <xacro:property name="camera_x"     value="${chassis_length/2.0}"/>
+  <xacro:property name="camera_z"     value="${chassis_height}"/>
+  <xacro:property name="camera_pitch" value="${pi/4.0}"/>
+
+  <!-- Ultrasounds: all at mid-chassis-height. Sensors stick out 5 mm
+       past the front face so the gpu_lidar raycast does not start inside
+       the chassis collision volume (which would clamp it to min_range).
+       Left/right sit at the front-left and front-right corners. -->
+  <xacro:property name="us_x"          value="${chassis_length/2.0 + 0.005}"/>
+  <xacro:property name="us_z"          value="${chassis_height/2.0}"/>
+  <xacro:property name="us_side_y"     value="${chassis_width/2.0 - 0.010}"/>  <!-- near chassis corner -->
+  <xacro:property name="us_side_yaw"   value="${pi/4.0}"/>       <!-- 45° -->
+
+  <!-- Line sensors sit at the front-leg X (same x as caster_front), centered
+       laterally; the floor_camera then samples two pixel positions that
+       correspond to "slightly left" and "slightly right" of the leg. -->
+  <xacro:property name="line_sensor_x" value="${caster_front_x}"/>
+  <xacro:property name="line_sensor_z" value="-0.01"/>
 
   <!-- Encoder spec from MODERNIZATION_ROADMAP Appendix B. -->
   <xacro:property name="encoder_pulses_per_rev" value="576"/>
@@ -85,6 +117,8 @@
 
   <link name="base_link">
     <visual>
+      <!-- shift up so chassis BOTTOM = base_link z=0 (axle plane). -->
+      <origin xyz="0 0 ${chassis_height/2.0}" rpy="0 0 0"/>
       <geometry>
         <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
       </geometry>
@@ -93,12 +127,20 @@
       </material>
     </visual>
     <collision>
+      <origin xyz="0 0 ${chassis_height/2.0}" rpy="0 0 0"/>
       <geometry>
         <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
       </geometry>
     </collision>
-    <xacro:box_inertia mass="${chassis_mass}"
-                       x="${chassis_length}" y="${chassis_width}" z="${chassis_height}"/>
+    <!-- Inertial origin must sit at the chassis CoM, not at base_link. -->
+    <inertial>
+      <origin xyz="0 0 ${chassis_height/2.0}" rpy="0 0 0"/>
+      <mass value="${chassis_mass}"/>
+      <inertia
+        ixx="${chassis_mass*(chassis_width*chassis_width + chassis_height*chassis_height)/12.0}" ixy="0" ixz="0"
+        iyy="${chassis_mass*(chassis_length*chassis_length + chassis_height*chassis_height)/12.0}" iyz="0"
+        izz="${chassis_mass*(chassis_length*chassis_length + chassis_width*chassis_width)/12.0}"/>
+    </inertial>
   </link>
 
   <!-- ============================================================== -->
@@ -144,31 +186,32 @@
   <xacro:wheel side="right" reflect="-1"/>
 
   <!-- ============================================================== -->
-  <!--  Caster (rear)                                                  -->
+  <!--  Casters (front + rear) — passive stabilizers                  -->
   <!-- ============================================================== -->
-  <link name="caster_link">
-    <visual>
-      <geometry>
-        <sphere radius="${caster_radius}"/>
-      </geometry>
-      <material name="grey"/>
-    </visual>
-    <collision>
-      <geometry>
-        <sphere radius="${caster_radius}"/>
-      </geometry>
-    </collision>
-    <xacro:sphere_inertia mass="${caster_mass}" radius="${caster_radius}"/>
-  </link>
-  <joint name="caster_joint" type="fixed">
-    <parent link="base_link"/>
-    <child  link="caster_link"/>
-    <origin xyz="${caster_x} 0 ${-(wheel_radius - caster_radius)}" rpy="0 0 0"/>
-  </joint>
-  <gazebo reference="caster_link">
-    <mu1>0.05</mu1>
-    <mu2>0.05</mu2>
-  </gazebo>
+  <xacro:macro name="caster" params="suffix x">
+    <link name="caster_${suffix}_link">
+      <visual>
+        <geometry><sphere radius="${caster_radius}"/></geometry>
+        <material name="grey"/>
+      </visual>
+      <collision>
+        <geometry><sphere radius="${caster_radius}"/></geometry>
+      </collision>
+      <xacro:sphere_inertia mass="${caster_mass}" radius="${caster_radius}"/>
+    </link>
+    <joint name="caster_${suffix}_joint" type="fixed">
+      <parent link="base_link"/>
+      <child  link="caster_${suffix}_link"/>
+      <origin xyz="${x} 0 ${-(wheel_radius - caster_radius)}" rpy="0 0 0"/>
+    </joint>
+    <gazebo reference="caster_${suffix}_link">
+      <mu1>0.05</mu1>
+      <mu2>0.05</mu2>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:caster suffix="front" x="${caster_front_x}"/>
+  <xacro:caster suffix="rear"  x="${caster_rear_x}"/>
 
   <!-- ============================================================== -->
   <!--  Lidar (RPLiDAR A1 — 360° 2D scan)                             -->
@@ -192,7 +235,7 @@
   <joint name="lidar_joint" type="fixed">
     <parent link="base_link"/>
     <child  link="lidar_link"/>
-    <origin xyz="0 0 ${lidar_height}" rpy="0 0 0"/>
+    <origin xyz="${lidar_x} ${lidar_y} ${lidar_z}" rpy="0 0 0"/>
   </joint>
 
   <gazebo reference="lidar_link">
@@ -245,7 +288,8 @@
   <joint name="camera_joint" type="fixed">
     <parent link="base_link"/>
     <child  link="camera_link"/>
-    <origin xyz="${camera_x_offset} 0 ${camera_height}" rpy="0 0 0"/>
+    <!-- Front-top of chassis, pitched 45° down toward the ground. -->
+    <origin xyz="${camera_x} 0 ${camera_z}" rpy="0 ${camera_pitch} 0"/>
   </joint>
 
   <link name="camera_optical_frame"/>
@@ -306,6 +350,68 @@
       <always_on>true</always_on>
     </sensor>
   </gazebo>
+
+  <!-- ============================================================== -->
+  <!--  Ultrasounds (3× SRF-05-like, single-ray for now)               -->
+  <!--                                                                 -->
+  <!--  Forward, +45° left, -45° right. All at mid-chassis height.    -->
+  <!--  Gazebo Harmonic has no native sonar primitive, so we use      -->
+  <!--  single-sample gpu_lidar sensors. The T4.3 ultrasound_bridge   -->
+  <!--  (follow-up) will aggregate the three /us_* topics into a      -->
+  <!--  std_msgs/UInt8MultiArray of 3 distances in cm, matching the   -->
+  <!--  /bpc_prp_robot/ultrasounds contract in Appendix B.            -->
+  <!-- ============================================================== -->
+  <xacro:macro name="ultrasound" params="suffix x y yaw">
+    <!-- Sensor link is a 2x2x1 cm visual marker only — no collision so
+         the sensor's own model does not occlude the raycast. -->
+    <link name="us_${suffix}_link">
+      <visual>
+        <geometry><box size="0.02 0.02 0.01"/></geometry>
+        <material name="dark_grey"/>
+      </visual>
+      <xacro:box_inertia mass="0.005" x="0.02" y="0.02" z="0.01"/>
+    </link>
+    <joint name="us_${suffix}_joint" type="fixed">
+      <parent link="base_link"/>
+      <child  link="us_${suffix}_link"/>
+      <origin xyz="${x} ${y} ${us_z}" rpy="0 0 ${yaw}"/>
+    </joint>
+
+    <gazebo reference="us_${suffix}_link">
+      <sensor name="ultrasound_${suffix}" type="gpu_lidar">
+        <topic>us_${suffix}</topic>
+        <gz_frame_id>us_${suffix}_link</gz_frame_id>
+        <update_rate>5</update_rate>  <!-- 5 Hz per Appendix B -->
+        <lidar>
+          <scan>
+            <horizontal>
+              <samples>1</samples>
+              <min_angle>0</min_angle>
+              <max_angle>0</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.02</min>
+            <max>2.55</max>  <!-- 255 cm max (UInt8 cap) -->
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.005</stddev>
+          </noise>
+        </lidar>
+        <always_on>true</always_on>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:ultrasound suffix="front" x="${us_x}"
+                    y="0"                  yaw="0"/>
+  <xacro:ultrasound suffix="left"  x="${us_x}"
+                    y="${us_side_y}"       yaw="${us_side_yaw}"/>
+  <xacro:ultrasound suffix="right" x="${us_x}"
+                    y="${-us_side_y}"      yaw="${-us_side_yaw}"/>
 
   <!-- ============================================================== -->
   <!--  Line sensors (T4.2)                                            -->

@@ -10,12 +10,8 @@ Output contract — matches MODERNIZATION_ROADMAP.md Appendix B:
     /bpc_prp_robot/line_sensors   std_msgs/UInt16MultiArray, length 2
                                   data[0] = left sensor,  0 .. 1023
                                   data[1] = right sensor, 0 .. 1023
-    Polarity: white floor → high reading (≈1023),
-              black line  → low reading (≈0).
-
-Polarity may need flipping if a future hardware-side check shows the real
-ADC inverts the IR-reflectance reading. Cheap to change here -- the rest
-of the contract stays identical.
+    Polarity (Adam, 2026-05-20): white floor → LOW reading (≈0),
+                                  black line  → HIGH reading (≈1023).
 """
 
 from __future__ import annotations
@@ -102,10 +98,10 @@ class LineSensorBridge(Node):
         return total / n if n else 0.0
 
     def _brightness_to_reading(self, brightness: float) -> int:
-        # Linear pixel-brightness (0..255) → ADC reading (0..max_reading).
-        # Bright floor → high reading, dark line → low reading. Flip here if
-        # the real sensor polarity is the other way (cheap one-line change).
-        v = int(round(brightness / 255.0 * self.max_reading))
+        # Linear inverted: pixel brightness (0..255) → ADC reading
+        # (max_reading..0). White floor → low reading, black line → high
+        # reading. Matches Fenrir hardware (Adam 2026-05-20).
+        v = int(round((1.0 - brightness / 255.0) * self.max_reading))
         return max(0, min(self.max_reading, v))
 
 

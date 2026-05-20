@@ -1,19 +1,23 @@
 """motor_bridge — /bpc_prp_robot/set_motor_speeds  ↔  /cmd_vel.
 
-Translates the Fenrir contract (UInt8MultiArray[2]: [right, left],
+Translates the Fenrir contract (UInt8MultiArray[2]: [left, right],
 0..255 with 127 = stop) into geometry_msgs/Twist for the Gazebo
 DiffDrive plugin, AND enforces the 1-second motor watchdog that the
 real robot's I2C firmware implements.
 
-Encoding (per MODERNIZATION_ROADMAP.md Appendix B):
+Topic-ordering convention (Adam, 2026-05-20): every multi-element
+/bpc_prp_robot/* topic is ordered LEFT-to-RIGHT. So:
+    set_motor_speeds : [left,  right]
+    line_sensors     : [left,  right]
+    ultrasounds      : [left,  center, right]   (T4.3 follow-up)
+
+Byte encoding (per MODERNIZATION_ROADMAP.md Appendix B):
     raw byte 127         -> stop  (0 m/s for that wheel)
     raw byte 255         -> +1.27 m/s (forward)
     raw byte   0         -> -1.27 m/s (reverse)
     everything in between is linear.
 
-The bytes are interpreted as wheel-tangential linear speed in m/s.
-We assemble v_right, v_left and turn them into v (linear) and omega
-(angular) using the standard differential-drive kinematics:
+Differential-drive kinematics:
     v     = (v_right + v_left) / 2
     omega = (v_right - v_left) / wheel_separation
 """
@@ -69,14 +73,15 @@ class MotorBridge(Node):
     def _on_set_motor_speeds(self, msg: UInt8MultiArray) -> None:
         if len(msg.data) < 2:
             self.get_logger().warning(
-                "set_motor_speeds expects [right, left]; got %d bytes"
+                "set_motor_speeds expects [left, right]; got %d bytes"
                 % len(msg.data)
             )
             return
 
-        right, left = int(msg.data[0]), int(msg.data[1])
-        self.v_right_mps = (right - 127) * M_PER_S_PER_BYTE
+        # Left-to-right convention: data[0] = left wheel, data[1] = right wheel.
+        left, right = int(msg.data[0]), int(msg.data[1])
         self.v_left_mps  = (left  - 127) * M_PER_S_PER_BYTE
+        self.v_right_mps = (right - 127) * M_PER_S_PER_BYTE
         self.last_cmd_time = self.get_clock().now()
 
     def _publish_cmd(self) -> None:
