@@ -187,10 +187,14 @@ All multi-element `/bpc_prp_robot/*` topics are **left → right**:
 - **T4.3** — finish the bridge: encoders (joint_states → uint32 ticks),
   ultrasounds, buttons, RGB LEDs, current_probes. Bit-identical match against
   Appendix B of the roadmap.
-- **T4.4** — corridor world (Labs 8–9) and maze world (Labs 10–13, final
-  exam). Maze STLs are in `3d-print/maze/`; use as gz models.
-- **T4.5** — `corridor.launch.py`, `maze.launch.py`.
-- **T4.6** — add a "Simulation" section to every hardware lab in `BPC-PRP/`.
+- **T4.4** — maze world (Labs 10–13, final exam). Maze STLs are in
+  `3d-print/maze/`; use as gz models. *(Line + corridor worlds done.)*
+- **T4.5** — `maze.launch.py`. *(`line.launch.py` + `corridor.launch.py` done.)*
+- **T4.6** — student-facing simulator docs. **Done**: the standalone
+  `Simulation` section in the `BPC-PRP` lab book (`src/5_simulation/` —
+  `Gazebo Simulation` + `Using the Simulation Tools`, on
+  `BPC-PRP:modernization/phase-4`). **Pending**: per-lab "Simulation"
+  subsections in each hardware lab once the maze world lands.
 
 ## Corridor following (Lab 12)
 

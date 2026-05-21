@@ -114,6 +114,17 @@ The development is currently still under development
 | Switch                 |                     | [link](https://pajenicko.cz/kulaty-kolebkovy-spinac-se-zelenou-led-12v-20a)                                                                                                                                                                                                                     |
 
 
+## Simulation
+
+A Gazebo simulator of Fenrir lives in [`simulation/`](./simulation). It is a
+digital twin of the robot: it exposes the same `/bpc_prp_robot/*` ROS 2 topics
+as the real hardware, so course code runs unchanged in simulation and on the
+robot.
+
+It runs in a Docker container — no native Gazebo install needed. The line and
+corridor worlds are ready; the maze world is in progress. See
+[`simulation/README.md`](./simulation/README.md) for setup and how to run it.
+
 ## Acknowledgments
 
 This work was created with the support of project RP182401001 under the PPSŘ 2025 program.
