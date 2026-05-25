@@ -22,7 +22,7 @@ Fenrir is an open-source educational robotic platform. It is the **physical robo
 - **`main`** is the pushed baseline.
 - **`modernization/phase-1`** (pushed to origin) carries the `rgb_leds_handler` node-name fix (T1.9) and CLAUDE.md additions. 3 commits ahead of `main`.
 - **`modernization/phase-3`** (pushed to origin, branched 2026-05-20 off phase-1) is where Phase 3 work *will* happen here — the `robot-runtime` Docker image (T3.3 in `bpc-prp-devel/MODERNIZATION_ROADMAP.md` §7). Currently just carries CLAUDE.md amendments describing the plan. 4 commits ahead of `main` (includes phase-1 ancestry).
-- **`modernization/phase-4`** (branched 2026-05-20 off phase-3) carries the **Phase 4 Gazebo simulator** — the `simulation/` package (`fenrir_sim`), `docker/sim/Dockerfile`, and the worlds. This is the active branch. Line and corridor worlds run end-to-end against the `/bpc_prp_robot/*` contract; the maze world and the encoder/button/LED/ultrasound bridges are still to do (roadmap §8, T4.3 / T4.4 follow-ups). Student-facing how-to docs live in `BPC-PRP:modernization/phase-4` (`src/5_simulation/`).
+- **`modernization/phase-4`** (branched 2026-05-20 off phase-3) carries the **Phase 4 Gazebo simulator** — the `simulation/` package (`fenrir_sim`), `docker/sim/Dockerfile`, and the worlds. This is the active branch. Line, corridor and maze worlds all run end-to-end against the `/bpc_prp_robot/*` contract; the encoder/button/LED/ultrasound bridges (T4.3) are still to do. Student-facing how-to docs live in `BPC-PRP:modernization/phase-4` (`src/5_simulation/`).
 
 **Phase 2 status note:** T2.1 (Pi workspace to ROS 2 Jazzy) and T2.3 (provisioning to Ubuntu 24.04) are **deferred** to a bundled hands-on robot session along with T2.5. Consequence: **T3.3 robot-runtime is BLOCKED** until T2.1 lands — the image needs the Pi nodes to build on Jazzy before it can be containerized. T2.2 (`main_controller` on Jazzy) is done in the `bpc-prp-devel` repo and does not affect this one.
 
@@ -120,9 +120,9 @@ image (`docker/sim/Dockerfile`, `FROM bpc-prp-base:jazzy`).
 | Path | Contents |
 |---|---|
 | `description/fenrir.urdf.xacro` | Robot model — geometry matches the real Fenrir spec (150 mm chassis, 120 mm wheel base, 33 mm wheels) |
-| `worlds/` | `empty`, `line`, `corridor_{straight,loop,double_loop}` SDF worlds; `maze` is a T4.4 follow-up |
+| `worlds/` | `empty`, `line`, `corridor_{straight,loop,double_loop}`, `maze` SDF worlds |
 | `fenrir_sim/*_bridge.py` | Bridge nodes that translate Gazebo topics ↔ the `/bpc_prp_robot/*` contract: `motor_bridge`, `lidar_bridge`, `line_sensor_bridge`. Encoders / buttons / RGB LEDs / ultrasounds are T4.3 follow-ups |
-| `launch/` | `line.launch.py`, `corridor.launch.py` (`world:=` arg); both take `headless:=true`. `maze.launch.py` is a T4.5 follow-up |
+| `launch/` | `line.launch.py`, `corridor.launch.py` (`world:=` arg), `maze.launch.py`; all take `headless:=true` |
 | `examples/` | `line_follower.py`, `corridor_follower.py` — closed-loop reference controllers using only the `/bpc_prp_robot/*` contract |
 | `config/ros_gz_bridge.yaml` | `ros_gz_bridge` topic map |
 

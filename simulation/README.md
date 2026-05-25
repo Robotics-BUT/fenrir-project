@@ -20,12 +20,12 @@ drives the simulated robot around the line.sdf track using the same
 | `empty.sdf` (spawn-test world) | ✅ |
 | `line.sdf` (line-following) | ✅ first cut, simple rectangle with 90° corners; the actual `tracks.drawio` geometry is a separate follow-up |
 | `corridor_{straight,loop,double_loop}.sdf` | ✅ Lab 12 exam tracks (40 cm cells, 30 cm tall red walls, hollow inner cells) |
-| `maze.sdf` | ❌ T4.4 follow-up |
+| `maze.sdf` | ✅ Lab 13 exam track — 8×8 cells, tree topology (snake path with a row-7 dead-end branch); spawn at SW cell, exit at top of NE cell. ArUco / floor-tape decals are a follow-up |
 | `motor_bridge` node (set_motor_speeds ↔ cmd_vel + 1 s watchdog) | ✅ |
 | `ros_gz_bridge` config | ✅ for camera / IMU / floor_camera / lidar (→ /internal/lidar) / cmd_vel / odom / TF / clock |
 | `line.launch.py` | ✅ |
 | `corridor.launch.py` (with `world:=…` arg) | ✅ |
-| `maze.launch.py` | ❌ T4.5 follow-up |
+| `maze.launch.py` | ✅ |
 | Sim Docker image (`docker/sim/Dockerfile`) | ✅ |
 | **End-to-end closed-loop demos** | ✅ `examples/line_follower.py` (P-only line PID) + `examples/corridor_follower.py` (lidar-based corridor centering with turn-at-corner) |
 
@@ -187,14 +187,14 @@ All multi-element `/bpc_prp_robot/*` topics are **left → right**:
 - **T4.3** — finish the bridge: encoders (joint_states → uint32 ticks),
   ultrasounds, buttons, RGB LEDs, current_probes. Bit-identical match against
   Appendix B of the roadmap.
-- **T4.4** — maze world (Labs 10–13, final exam). Maze STLs are in
-  `3d-print/maze/`; use as gz models. *(Line + corridor worlds done.)*
-- **T4.5** — `maze.launch.py`. *(`line.launch.py` + `corridor.launch.py` done.)*
+- **T4.4** — **done.** `maze.sdf` covers Labs 10–13 with an 8×8 tree-topology
+  layout; ArUco / floor-tape decals are a smaller follow-up.
+- **T4.5** — **done.** `maze.launch.py` spawns the robot at the SW start cell.
 - **T4.6** — student-facing simulator docs. **Done**: the standalone
   `Simulation` section in the `BPC-PRP` lab book (`src/5_simulation/` —
   `Gazebo Simulation` + `Using the Simulation Tools`, on
   `BPC-PRP:modernization/phase-4`). **Pending**: per-lab "Simulation"
-  subsections in each hardware lab once the maze world lands.
+  subsections in each hardware lab.
 
 ## Corridor following (Lab 12)
 
@@ -256,6 +256,33 @@ Verified on all three tracks:
   90° corner.
 - `corridor_double_loop`: navigates the figure-8 across the shared
   cell, transitioning HUG ↔ BALANCE as the lidar topology changes.
+
+## Maze escape (Lab 13)
+
+`maze.sdf` is an 8×8 grid of 0.40 m cells (3.2 m × 3.2 m total) with the
+same wall style as the corridor worlds (red, 30 cm tall, 0.02 m thick).
+Tree topology, no loops — one start, one exit, per the Lab 13 exam spec
+(`BPC-PRP/src/2_labs/text/13_exam.md`).
+
+| Property | Value |
+|---|---|
+| Cell size | 0.40 m × 0.40 m |
+| Cells | 8 × 8 |
+| Start cell | SW corner — world coords `(-1.4, -1.4)`, robot heading east |
+| Exit | top edge of cell `(7, 7)` — NE corner |
+| Main path | east-west snake from row 0 up to row 7 |
+| Dead-end | row 7 cells `(0,7)..(6,7)`, entered from `(6,6)` going north |
+
+The real exam maze is rebuilt randomly each run; this is one fixed
+representative layout for sim practice. ArUco markers (Lab 11 hints) and
+floor cell-boundary tape are not modelled yet — both are smaller follow-ups
+once a wall-follower or maze-solver controller proves the world drivable.
+
+```bash
+ros2 launch fenrir_sim maze.launch.py                 # with GUI
+ros2 launch fenrir_sim maze.launch.py headless:=true  # CI / smoke
+ros2 launch fenrir_sim maze.launch.py rviz:=true      # GUI + RViz
+```
 
 ## End-to-end demo (line following)
 
