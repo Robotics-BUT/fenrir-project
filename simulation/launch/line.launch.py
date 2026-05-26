@@ -147,6 +147,18 @@ def generate_launch_description() -> LaunchDescription:
         parameters=[{"use_sim_time": LaunchConfiguration("use_sim_time")}],
     )
 
+    # ---- encoder_bridge: /joint_states -> /bpc_prp_robot/encoders ---------
+    encoder_bridge = Node(
+        package="fenrir_sim",
+        executable="encoder_bridge",
+        output="screen",
+        parameters=[{
+            "pulses_per_rev": 576,
+            "publish_period": 0.01,
+            "use_sim_time": LaunchConfiguration("use_sim_time"),
+        }],
+    )
+
     # ---- optional RViz2 ---------------------------------------------------
     rviz = Node(
         package="rviz2",
@@ -175,5 +187,6 @@ def generate_launch_description() -> LaunchDescription:
         motor_bridge,
         line_sensor_bridge,
         lidar_bridge,
+        encoder_bridge,
         rviz,
     ])

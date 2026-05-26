@@ -36,6 +36,7 @@ setup(
             "motor_bridge       = fenrir_sim.motor_bridge:main",
             "line_sensor_bridge = fenrir_sim.line_sensor_bridge:main",
             "lidar_bridge       = fenrir_sim.lidar_bridge:main",
+            "encoder_bridge     = fenrir_sim.encoder_bridge:main",
         ],
     },
 )

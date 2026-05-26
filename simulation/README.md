@@ -16,12 +16,14 @@ drives the simulated robot around the line.sdf track using the same
 | Ultrasounds (forward + 45° L + 45° R, mid-height) | ✅ URDF sensors in place, gz topics `/us_{front,left,right}`. T4.3 follow-up bridges them to `/bpc_prp_robot/ultrasounds` |
 | Line sensors | ✅ downward floor-camera + line_sensor_bridge samples two pixel positions slightly left and right of the front leg. Polarity matches real ADC: **white floor → low, black line → high**, range 0..1023 |
 | LiDAR (Fenrir mounting: 180° backward, CW scan) | ✅ lidar_bridge re-orders the gz scan so `ranges[0]` = backward, `ranges[N/4]` = LEFT, `ranges[N/2]` = forward, `ranges[3N/4]` = RIGHT, with `angle_increment` = −2π/N |
-| Encoders / buttons / RGB LEDs / ultrasounds | ❌ T4.3 follow-up — bridge stubs needed |
+| Encoders (576 pulses/rev, uint32 wrap) | ✅ encoder_bridge derives ticks from /joint_states; publishes `/bpc_prp_robot/encoders` UInt32MultiArray[left, right] at 100 Hz |
+| Buttons / RGB LEDs / ultrasounds | ❌ T4.3 follow-up — bridge stubs needed |
 | `empty.sdf` (spawn-test world) | ✅ |
 | `line.sdf` (line-following) | ✅ first cut, simple rectangle with 90° corners; the actual `tracks.drawio` geometry is a separate follow-up |
 | `corridor_{straight,loop,double_loop}.sdf` | ✅ Lab 12 exam tracks (40 cm cells, 30 cm tall red walls, hollow inner cells) |
 | `maze.sdf` | ✅ Lab 13 exam track — 8×8 cells, tree topology (snake path with a row-7 dead-end branch); spawn at SW cell, exit at top of NE cell. ArUco / floor-tape decals are a follow-up |
 | `motor_bridge` node (set_motor_speeds ↔ cmd_vel + 1 s watchdog) | ✅ |
+| `encoder_bridge` node (joint_states → encoders) | ✅ |
 | `ros_gz_bridge` config | ✅ for camera / IMU / floor_camera / lidar (→ /internal/lidar) / cmd_vel / odom / TF / clock |
 | `line.launch.py` | ✅ |
 | `corridor.launch.py` (with `world:=…` arg) | ✅ |
@@ -184,9 +186,9 @@ All multi-element `/bpc_prp_robot/*` topics are **left → right**:
 
 ## Follow-up work (roadmap §8)
 
-- **T4.3** — finish the bridge: encoders (joint_states → uint32 ticks),
-  ultrasounds, buttons, RGB LEDs, current_probes. Bit-identical match against
-  Appendix B of the roadmap.
+- **T4.3** — finish the bridge: ultrasounds, buttons, RGB LEDs, current_probes.
+  Encoders are done — `encoder_bridge` mirrors the real firmware's 576-pulse,
+  uint32-wrap behaviour. Bit-identical match against Appendix B of the roadmap.
 - **T4.4** — **done.** `maze.sdf` covers Labs 10–13 with an 8×8 tree-topology
   layout; ArUco / floor-tape decals are a smaller follow-up.
 - **T4.5** — **done.** `maze.launch.py` spawns the robot at the SW start cell.
