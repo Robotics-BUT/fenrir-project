@@ -37,6 +37,21 @@ drives the simulated robot around the line.sdf track using the same
 The simulation runs **on demand** inside the `bpc-prp-sim:jazzy` Docker image
 — no native Gazebo install needed on the host.
 
+### GPU rendering note
+
+The gz-sim **Sensors system uses `ogre2`** for ray casting (lidar / ultrasound)
+and image rendering (camera / floor_camera). Even in `headless:=true` mode the
+sensors need a working OpenGL context, otherwise they silently publish empty
+messages (e.g. `LaserScan.ranges` all `.inf`). On a host with an NVIDIA GPU the
+container must be launched with the NVIDIA Container Toolkit:
+
+```bash
+docker run --rm -it --gpus all ...
+```
+
+On Intel / AMD hosts, `--device=/dev/dri` is usually enough. Without either,
+the launch starts but no sensor returns hits.
+
 ### One-time: build the images
 
 ```bash
@@ -94,7 +109,7 @@ All multi-element `/bpc_prp_robot/*` topics are ordered **left-to-right**:
 |---|---|
 | `set_motor_speeds` | `[left, right]` uint8 ×2 |
 | `line_sensors`     | `[left, right]` uint16 ×2 |
-| `ultrasounds`      | `[left, center, right]` uint8 ×3  *(T4.3 follow-up)* |
+| `ultrasounds`      | `[left, front, right]` uint8 ×3, cm (2 — 255; 255 = no echo) |
 
 ```bash
 # forward, both wheels at ~0.5 m/s (191 = ~0.5 m/s above 127=stop):
