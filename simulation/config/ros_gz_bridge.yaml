@@ -10,8 +10,11 @@
 #       handled by fenrir_sim/line_sensor_bridge.py — it consumes the
 #       /internal/floor_camera image bridged below and samples two pixels.
 #   /bpc_prp_robot/encoders
-#       T4-vs follow-up: derive from gz joint_states (encoder ticks).
-#   /bpc_prp_robot/ultrasounds / buttons / rgb_leds / current_probes
+#       handled by fenrir_sim/encoder_bridge.py — derives from gz joint_states.
+#   /bpc_prp_robot/ultrasounds
+#       handled by fenrir_sim/ultrasound_bridge.py — aggregates the three
+#       /internal/us_* LaserScan fans bridged below into a UInt8MultiArray[3].
+#   /bpc_prp_robot/buttons / rgb_leds / current_probes
 #       Stubs for later.
 
 # ---- Lidar (RPLiDAR A1) -----------------------------------------------------
@@ -19,6 +22,27 @@
 # to the Fenrir-mounting CW convention and republishes /bpc_prp_robot/lidar.
 - ros_topic_name: "/internal/lidar"
   gz_topic_name:  "/lidar"
+  ros_type_name:  "sensor_msgs/msg/LaserScan"
+  gz_type_name:   "gz.msgs.LaserScan"
+  direction:      GZ_TO_ROS
+
+# ---- Ultrasounds (3× narrow-fan gpu_lidar, consumed by ultrasound_bridge) ---
+# Each is a ±30° fan of rays; the bridge takes the minimum distance per fan
+# and packs the 3 values into /bpc_prp_robot/ultrasounds (UInt8MultiArray[3]).
+- ros_topic_name: "/internal/us_front"
+  gz_topic_name:  "/us_front"
+  ros_type_name:  "sensor_msgs/msg/LaserScan"
+  gz_type_name:   "gz.msgs.LaserScan"
+  direction:      GZ_TO_ROS
+
+- ros_topic_name: "/internal/us_left"
+  gz_topic_name:  "/us_left"
+  ros_type_name:  "sensor_msgs/msg/LaserScan"
+  gz_type_name:   "gz.msgs.LaserScan"
+  direction:      GZ_TO_ROS
+
+- ros_topic_name: "/internal/us_right"
+  gz_topic_name:  "/us_right"
   ros_type_name:  "sensor_msgs/msg/LaserScan"
   gz_type_name:   "gz.msgs.LaserScan"
   direction:      GZ_TO_ROS

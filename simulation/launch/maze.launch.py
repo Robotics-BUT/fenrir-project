@@ -144,6 +144,17 @@ def generate_launch_description() -> LaunchDescription:
         }],
     )
 
+    ultrasound_bridge = Node(
+        package="fenrir_sim",
+        executable="ultrasound_bridge",
+        output="screen",
+        parameters=[{
+            "channel_names":  ["us_left", "us_front", "us_right"],
+            "publish_period": 0.2,
+            "use_sim_time": LaunchConfiguration("use_sim_time"),
+        }],
+    )
+
     rviz = Node(
         package="rviz2",
         executable="rviz2",
@@ -171,5 +182,6 @@ def generate_launch_description() -> LaunchDescription:
         line_sensor_bridge,
         lidar_bridge,
         encoder_bridge,
+        ultrasound_bridge,
         rviz,
     ])

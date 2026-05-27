@@ -352,15 +352,23 @@
   </gazebo>
 
   <!-- ============================================================== -->
-  <!--  Ultrasounds (3× SRF-05-like, single-ray for now)               -->
+  <!--  Ultrasounds (3× SRF-05-like)                                   -->
   <!--                                                                 -->
   <!--  Forward, +45° left, -45° right. All at mid-chassis height.    -->
-  <!--  Gazebo Harmonic has no native sonar primitive, so we use      -->
-  <!--  single-sample gpu_lidar sensors. The T4.3 ultrasound_bridge   -->
-  <!--  (follow-up) will aggregate the three /us_* topics into a      -->
+  <!--  Gazebo Harmonic has no native sonar primitive, so we model    -->
+  <!--  each one as a narrow gpu_lidar fan spanning ±30°. The         -->
+  <!--  ultrasound_bridge node takes the MINIMUM distance across the  -->
+  <!--  fan per sensor — mirroring real-US echo behaviour: the sensor -->
+  <!--  reports the closest reflector inside its beam. Real-spec       -->
+  <!--  range 2 cm — 255 cm, per Adam 2026-05-27.                      -->
+  <!--                                                                 -->
+  <!--  The bridge aggregates the three /us_* topics into a            -->
   <!--  std_msgs/UInt8MultiArray of 3 distances in cm, matching the   -->
   <!--  /bpc_prp_robot/ultrasounds contract in Appendix B.            -->
   <!-- ============================================================== -->
+  <xacro:property name="us_half_fov"    value="${pi/6.0}"/>  <!-- ±30° -->
+  <xacro:property name="us_fan_samples" value="31"/>          <!-- ≈2°/ray -->
+
   <xacro:macro name="ultrasound" params="suffix x y yaw">
     <!-- Sensor link is a 2x2x1 cm visual marker only — no collision so
          the sensor's own model does not occlude the raycast. -->
@@ -385,9 +393,9 @@
         <lidar>
           <scan>
             <horizontal>
-              <samples>1</samples>
-              <min_angle>0</min_angle>
-              <max_angle>0</max_angle>
+              <samples>${us_fan_samples}</samples>
+              <min_angle>${-us_half_fov}</min_angle>
+              <max_angle>${us_half_fov}</max_angle>
             </horizontal>
           </scan>
           <range>

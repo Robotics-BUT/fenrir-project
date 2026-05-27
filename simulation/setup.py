@@ -37,6 +37,7 @@ setup(
             "line_sensor_bridge = fenrir_sim.line_sensor_bridge:main",
             "lidar_bridge       = fenrir_sim.lidar_bridge:main",
             "encoder_bridge     = fenrir_sim.encoder_bridge:main",
+            "ultrasound_bridge  = fenrir_sim.ultrasound_bridge:main",
         ],
     },
 )

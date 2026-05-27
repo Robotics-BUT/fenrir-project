@@ -159,6 +159,20 @@ def generate_launch_description() -> LaunchDescription:
         }],
     )
 
+    # ---- ultrasound_bridge: 3x /internal/us_* -> /bpc_prp_robot/ultrasounds
+    # Each gz sensor publishes a ±30° fan; the bridge takes the min per fan
+    # and packs [left, front, right] into a UInt8MultiArray of cm distances.
+    ultrasound_bridge = Node(
+        package="fenrir_sim",
+        executable="ultrasound_bridge",
+        output="screen",
+        parameters=[{
+            "channel_names":  ["us_left", "us_front", "us_right"],
+            "publish_period": 0.2,
+            "use_sim_time": LaunchConfiguration("use_sim_time"),
+        }],
+    )
+
     # ---- optional RViz2 ---------------------------------------------------
     rviz = Node(
         package="rviz2",
@@ -188,5 +202,6 @@ def generate_launch_description() -> LaunchDescription:
         line_sensor_bridge,
         lidar_bridge,
         encoder_bridge,
+        ultrasound_bridge,
         rviz,
     ])
