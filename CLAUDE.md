@@ -10,18 +10,15 @@ Fenrir is an open-source educational robotic platform. It is the **physical robo
 
 ## Branch state
 
-> **⚠ PARKED until end of semester (decision 2026-05-20).** The BPC-PRP
-> course is currently in session and runs against this robot. Hold the
-> `modernization/phase-3 → main` merge until the active course run ends —
-> mixing the Phase 1 doc updates into `main` while the rest of the
-> modernization (T2.1 Pi-stack Jazzy migration, T3.3 robot-runtime image)
-> is still pending could confuse anyone reading the latest fenrir docs.
-> Pre-drafted PR description in `bpc-prp-devel/MODERNIZATION_ROADMAP.md`
-> Appendix C (Merge 4/5).
+> **Modernization unparked 2026-05-27.** Appendix C Merge 4/5 landed
+> today — `main` now carries the `rgb_leds_handler` node-name fix (T1.9)
+> and the Phase 3 prep notes. The Phase 4 simulator branch
+> (`modernization/phase-4`, the `fenrir_sim` Gazebo package) is **still
+> unmerged** — waits on the remaining ultrasound, button and RGB-LED
+> bridges (Merge 6).
 
-- **`main`** is the pushed baseline.
-- **`modernization/phase-1`** (pushed to origin) carries the `rgb_leds_handler` node-name fix (T1.9) and CLAUDE.md additions. 3 commits ahead of `main`.
-- **`modernization/phase-3`** (pushed to origin, branched 2026-05-20 off phase-1) is where Phase 3 work *will* happen here — the `robot-runtime` Docker image (T3.3 in `bpc-prp-devel/MODERNIZATION_ROADMAP.md` §7). Currently just carries CLAUDE.md amendments describing the plan. 4 commits ahead of `main` (includes phase-1 ancestry).
+- **`main`** carries the modernization (Merges 1-side landed 2026-05-27).
+- **`modernization/phase-4`** (pushed to origin, branched 2026-05-21 off `phase-3`). The `fenrir_sim` ROS 2 / Gazebo Harmonic package: Fenrir URDF, `motor`/`lidar`/`line_sensor`/`encoder` bridges, `line` + 3 `corridor` + `maze` worlds, three launch files, `docker/sim/Dockerfile`, and two closed-loop example controllers (`line_follower.py`, `corridor_follower.py`). T4.3 ultrasound/button/RGB-LED bridges still to do before Merge 6. The T3.3 robot-runtime Docker image is **not on this branch** — still BLOCKED on T2.1 (Pi workspace to Jazzy).
 
 **Phase 2 status note:** T2.1 (Pi workspace to ROS 2 Jazzy) and T2.3 (provisioning to Ubuntu 24.04) are **deferred** to a bundled hands-on robot session along with T2.5. Consequence: **T3.3 robot-runtime is BLOCKED** until T2.1 lands — the image needs the Pi nodes to build on Jazzy before it can be containerized. T2.2 (`main_controller` on Jazzy) is done in the `bpc-prp-devel` repo and does not affect this one.
 
