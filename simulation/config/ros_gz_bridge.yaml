@@ -14,8 +14,14 @@
 #   /bpc_prp_robot/ultrasounds
 #       handled by fenrir_sim/ultrasound_bridge.py — aggregates the three
 #       /internal/us_* LaserScan fans bridged below into a UInt8MultiArray[3].
-#   /bpc_prp_robot/buttons / rgb_leds / current_probes
-#       Stubs for later.
+#   /bpc_prp_robot/buttons
+#       handled by fenrir_sim/button_bridge.py — interactive keyboard
+#       reader (run from a TTY, not from launch).
+#   /bpc_prp_robot/rgb_leds
+#       handled by fenrir_sim/rgb_leds_bridge.py — sink that mirrors the
+#       LED state to RViz markers (no gz actuator exists).
+#   /bpc_prp_robot/current_probes
+#       Stub for later (power-monitor topic; not modelled in sim).
 
 # ---- Lidar (RPLiDAR A1) -----------------------------------------------------
 # Bridge gz to an /internal/ topic; the lidar_bridge node then transforms it
