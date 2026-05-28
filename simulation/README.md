@@ -18,7 +18,7 @@ drives the simulated robot around the line.sdf track using the same
 | LiDAR (Fenrir mounting: 180° backward, CW scan) | ✅ lidar_bridge re-orders the gz scan so `ranges[0]` = backward, `ranges[N/4]` = LEFT, `ranges[N/2]` = forward, `ranges[3N/4]` = RIGHT, with `angle_increment` = −2π/N |
 | Encoders (576 pulses/rev, uint32 wrap) | ✅ encoder_bridge derives ticks from /joint_states; publishes `/bpc_prp_robot/encoders` UInt32MultiArray[left, right] at 100 Hz |
 | Buttons | ✅ `button_bridge` is an interactive keyboard reader: keys `1`/`2`/`3` publish `/bpc_prp_robot/buttons` `UInt8(0/1/2)` — Line / Corridor / Maze loops. Edge-triggered like the real robot. Run from a TTY (`ros2 run fenrir_sim button_bridge`), not from launch files |
-| RGB LEDs | ❌ T4.3 follow-up — bridge stub needed |
+| RGB LEDs | ✅ `rgb_leds_bridge` subscribes `/bpc_prp_robot/rgb_leds`, publishes 4 sphere markers on `/sim/rgb_leds_markers` (frame `base_link`) for RViz, and logs the RGB triplets on change. No gz actuator — sink-only |
 | `empty.sdf` (spawn-test world) | ✅ |
 | `line.sdf` (line-following) | ✅ first cut, simple rectangle with 90° corners; the actual `tracks.drawio` geometry is a separate follow-up |
 | `corridor_{straight,loop,double_loop}.sdf` | ✅ Lab 12 exam tracks (40 cm cells, 30 cm tall red walls, hollow inner cells) |
@@ -27,6 +27,7 @@ drives the simulated robot around the line.sdf track using the same
 | `encoder_bridge` node (joint_states → encoders) | ✅ |
 | `ultrasound_bridge` node (3× /internal/us_* → ultrasounds UInt8MultiArray) | ✅ |
 | `button_bridge` node (keyboard → buttons UInt8, interactive) | ✅ |
+| `rgb_leds_bridge` node (rgb_leds → RViz MarkerArray + log) | ✅ |
 | `ros_gz_bridge` config | ✅ for camera / IMU / floor_camera / lidar (→ /internal/lidar) / 3× /internal/us_* / cmd_vel / odom / TF / clock |
 | `line.launch.py` | ✅ |
 | `corridor.launch.py` (with `world:=…` arg) | ✅ |
@@ -220,21 +221,22 @@ All multi-element `/bpc_prp_robot/*` topics are **left → right**:
 | `line_sensors` | `UInt16MultiArray` | `[left, right]`, 0..1023 ADC (white→low, black→high) |
 | `ultrasounds` | `UInt8MultiArray` | `[left, front, right]`, cm (2–255; 255 = no echo) |
 | `encoders` | `UInt32MultiArray` | `[left, right]`, ticks (576 ppr) |
-| `rgb_leds` *(T4.3)* | `UInt8MultiArray` | `[led0_r, led0_g, led0_b, led1_r, ...]` |
+| `rgb_leds` | `UInt8MultiArray` | `[R0,G0,B0, R1,G1,B1, R2,G2,B2, R3,G3,B3]` — short arrays update only the covered LEDs |
 
 ## Follow-up work (roadmap §8)
 
-- **T4.3** — finish the bridge: RGB LEDs, current_probes.
-  Done: motor, lidar, line_sensor, encoder, ultrasound, and button
-  bridges. `ultrasound_bridge` takes `min(ranges)` across a ±30°
-  gpu_lidar fan per sensor and republishes the 3 distances as
-  `UInt8MultiArray[3]` in cm (range 2–255, 255 = no echo) at 5 Hz —
-  matches real-US echo behaviour (closest reflector in cone) and
-  Appendix B of the roadmap. `button_bridge` reads `1`/`2`/`3` keys
-  from a TTY and publishes single `UInt8` messages to
-  `/bpc_prp_robot/buttons` — edge-triggered, matching the real
-  `buttons_handler` falling-edge semantics; run interactively, not
-  from launch files.
+- **T4.3** — **done** (modulo optional `current_probes`). All seven
+  bridges shipped: motor, lidar, line_sensor, encoder, ultrasound,
+  button, rgb_leds. Highlights: `ultrasound_bridge` takes `min(ranges)`
+  across a ±30° gpu_lidar fan per sensor and republishes the 3
+  distances as `UInt8MultiArray[3]` in cm (range 2–255, 255 = no echo)
+  at 5 Hz, matching real-US echo behaviour. `button_bridge` is an
+  interactive keyboard reader (`1`/`2`/`3` → button id 0/1/2),
+  edge-triggered like the real `buttons_handler`; runs in its own TTY,
+  not from launch files. `rgb_leds_bridge` sinks the contract topic
+  and publishes 4 sphere markers (`visualization_msgs/MarkerArray` on
+  `/sim/rgb_leds_markers`, frame `base_link`) so LED state is visible
+  in RViz.
 - **T4.4** — **done.** `maze.sdf` covers Labs 10–13 with an 8×8 tree-topology
   layout; ArUco / floor-tape decals are a smaller follow-up.
 - **T4.5** — **done.** `maze.launch.py` spawns the robot at the SW start cell.

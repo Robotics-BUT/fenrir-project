@@ -173,6 +173,16 @@ def generate_launch_description() -> LaunchDescription:
         }],
     )
 
+    # ---- rgb_leds_bridge: /bpc_prp_robot/rgb_leds -> RViz MarkerArray ------
+    # No gz "RGB LED" actuator; the bridge logs on change and publishes 4
+    # sphere markers in base_link so the LED state is visible in RViz.
+    rgb_leds_bridge = Node(
+        package="fenrir_sim",
+        executable="rgb_leds_bridge",
+        output="screen",
+        parameters=[{"use_sim_time": LaunchConfiguration("use_sim_time")}],
+    )
+
     # ---- optional RViz2 ---------------------------------------------------
     rviz = Node(
         package="rviz2",
@@ -203,5 +213,6 @@ def generate_launch_description() -> LaunchDescription:
         lidar_bridge,
         encoder_bridge,
         ultrasound_bridge,
+        rgb_leds_bridge,
         rviz,
     ])

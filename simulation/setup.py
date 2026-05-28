@@ -39,6 +39,7 @@ setup(
             "encoder_bridge     = fenrir_sim.encoder_bridge:main",
             "ultrasound_bridge  = fenrir_sim.ultrasound_bridge:main",
             "button_bridge      = fenrir_sim.button_bridge:main",
+            "rgb_leds_bridge    = fenrir_sim.rgb_leds_bridge:main",
         ],
     },
 )

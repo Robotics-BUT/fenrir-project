@@ -155,6 +155,13 @@ def generate_launch_description() -> LaunchDescription:
         }],
     )
 
+    rgb_leds_bridge = Node(
+        package="fenrir_sim",
+        executable="rgb_leds_bridge",
+        output="screen",
+        parameters=[{"use_sim_time": LaunchConfiguration("use_sim_time")}],
+    )
+
     rviz = Node(
         package="rviz2",
         executable="rviz2",
@@ -183,5 +190,6 @@ def generate_launch_description() -> LaunchDescription:
         lidar_bridge,
         encoder_bridge,
         ultrasound_bridge,
+        rgb_leds_bridge,
         rviz,
     ])
