@@ -18,7 +18,7 @@ drives the simulated robot around the line.sdf track using the same
 | LiDAR (Fenrir mounting: 180° backward, CW scan) | ✅ lidar_bridge re-orders the gz scan so `ranges[0]` = backward, `ranges[N/4]` = LEFT, `ranges[N/2]` = forward, `ranges[3N/4]` = RIGHT, with `angle_increment` = −2π/N |
 | Encoders (576 pulses/rev, uint32 wrap) | ✅ encoder_bridge derives ticks from /joint_states; publishes `/bpc_prp_robot/encoders` UInt32MultiArray[left, right] at 100 Hz |
 | Buttons | ✅ `button_bridge` is an interactive keyboard reader: keys `1`/`2`/`3` publish `/bpc_prp_robot/buttons` `UInt8(0/1/2)` — Line / Corridor / Maze loops. Edge-triggered like the real robot. Run from a TTY (`ros2 run fenrir_sim button_bridge`), not from launch files |
-| RGB LEDs | ✅ `rgb_leds_bridge` subscribes `/bpc_prp_robot/rgb_leds`, publishes 4 sphere markers on `/sim/rgb_leds_markers` (frame `base_link`) for RViz, and logs the RGB triplets on change. No gz actuator — sink-only |
+| RGB LEDs | ✅ 4 LED cubes on the chassis top at **front / right / back / left** (`data[0:3]`=front, `[3:6]`=right, `[6:9]`=back, `[9:12]`=left). `rgb_leds_bridge` turns `/bpc_prp_robot/rgb_leds` into 4 `MaterialColor` msgs on `/led_colors`; the **`LedMaterialColor`** gz-sim system recolours the cubes **live in the Gazebo GUI** (sets the visual material + draws a matching `/marker` box) and also keeps the RViz markers on `/sim/rgb_leds_markers` |
 | `empty.sdf` (spawn-test world) | ✅ |
 | `line.sdf` (line-following) | ✅ first cut, simple rectangle with 90° corners; the actual `tracks.drawio` geometry is a separate follow-up |
 | `corridor_{straight,loop,double_loop}.sdf` | ✅ Lab 12 exam tracks (40 cm cells, 30 cm tall red walls, hollow inner cells) |
@@ -27,8 +27,9 @@ drives the simulated robot around the line.sdf track using the same
 | `encoder_bridge` node (joint_states → encoders) | ✅ |
 | `ultrasound_bridge` node (3× /internal/us_* → ultrasounds UInt8MultiArray) | ✅ |
 | `button_bridge` node (keyboard → buttons UInt8, interactive) | ✅ |
-| `rgb_leds_bridge` node (rgb_leds → RViz MarkerArray + log) | ✅ |
-| `ros_gz_bridge` config | ✅ for camera / IMU / floor_camera / lidar (→ /internal/lidar) / 3× /internal/us_* / cmd_vel / odom / TF / clock |
+| `rgb_leds_bridge` node (rgb_leds → 4× MaterialColor on /led_colors + RViz markers) | ✅ |
+| `LedMaterialColor` gz-sim system (`plugins/`) — recolours the 4 LED cubes in the GUI via material + `/marker` | ✅ build `plugins/` and set `GZ_SIM_SYSTEM_PLUGIN_PATH` |
+| `ros_gz_bridge` config | ✅ for camera / IMU / floor_camera / lidar (→ /internal/lidar) / 3× /internal/us_* / **/led_colors (MaterialColor)** / cmd_vel / odom / TF / clock |
 | `line.launch.py` | ✅ |
 | `corridor.launch.py` (with `world:=…` arg) | ✅ |
 | `maze.launch.py` | ✅ |
@@ -233,10 +234,11 @@ All multi-element `/bpc_prp_robot/*` topics are **left → right**:
   at 5 Hz, matching real-US echo behaviour. `button_bridge` is an
   interactive keyboard reader (`1`/`2`/`3` → button id 0/1/2),
   edge-triggered like the real `buttons_handler`; runs in its own TTY,
-  not from launch files. `rgb_leds_bridge` sinks the contract topic
-  and publishes 4 sphere markers (`visualization_msgs/MarkerArray` on
-  `/sim/rgb_leds_markers`, frame `base_link`) so LED state is visible
-  in RViz.
+  not from launch files. `rgb_leds_bridge` maps the contract topic to
+  4 directional LED cubes (front/right/back/left) and the
+  `LedMaterialColor` system recolours them live in the Gazebo GUI (see
+  "RGB LED demo" below); it also keeps RViz markers on
+  `/sim/rgb_leds_markers`.
 - **T4.4** — **done.** `maze.sdf` covers Labs 10–13 with an 8×8 tree-topology
   layout; ArUco / floor-tape decals are a smaller follow-up.
 - **T4.5** — **done.** `maze.launch.py` spawns the robot at the SW start cell.
@@ -245,6 +247,64 @@ All multi-element `/bpc_prp_robot/*` topics are **left → right**:
   `Gazebo Simulation` + `Using the Simulation Tools`, on
   `BPC-PRP:modernization/phase-4`). **Pending**: per-lab "Simulation"
   subsections in each hardware lab.
+
+## RGB LED demo
+
+The 4 LED cubes recolour live in the Gazebo GUI. The recolour is done by
+the `LedMaterialColor` gz-sim system in `plugins/` (gz-sim 8.11 has no
+upstream MaterialColor system and its GUI does not repaint a model's
+material at runtime, so the system also draws a `/marker` box per LED).
+
+Build the plugin once and put it on the system-plugin path:
+
+```bash
+cmake -S plugins -B plugins/build && cmake --build plugins/build
+export GZ_SIM_SYSTEM_PLUGIN_PATH=$PWD/plugins/build:$GZ_SIM_SYSTEM_PLUGIN_PATH
+```
+
+Run a world (GUI), then drive the LEDs:
+
+```bash
+ros2 launch fenrir_sim line.launch.py                      # terminal 1
+python3 examples/rainbow_leds.py                           # terminal 2 — rotating rainbow
+# or set them by hand (front, right, back, left):
+ros2 topic pub --once /bpc_prp_robot/rgb_leds std_msgs/msg/UInt8MultiArray \
+  "{data: [255,0,0, 0,255,0, 0,0,255, 255,255,0]}"
+python3 examples/led_monitor.py                            # headless: ANSI colour blocks in the terminal
+```
+
+**Live GUI in Docker (needs a display + GPU).** Run the `bpc-prp-sim`
+container with the host display and NVIDIA GPU — mounting only `/dev/dri`
+is NOT enough (EGL fails, the `/marker` service hangs):
+
+```bash
+xhost +local:
+docker run --rm -it --net=host --gpus all \
+  -e DISPLAY=$DISPLAY -e NVIDIA_DRIVER_CAPABILITIES=all -e QT_QPA_PLATFORM=xcb \
+  -v /tmp/.X11-unix:/tmp/.X11-unix -v "$PWD/..:/ws" -w /ws/simulation \
+  bpc-prp-sim:jazzy bash
+```
+
+## Notes for next session (LED feature, 2026-05-29)
+
+- **Done & verified live on screen:** 4 directional LED cubes recolour from
+  `/bpc_prp_robot/rgb_leds` in the Gazebo GUI (rainbow demo cycling).
+  Files: `plugins/LedMaterialColor.cc` + `CMakeLists.txt`,
+  `description/fenrir.urdf.xacro` (LED cubes, off by default),
+  `fenrir_sim/rgb_leds_bridge.py` (directional + `/led_colors`),
+  `config/ros_gz_bridge.yaml` (`/led_colors`), `examples/rainbow_leds.py`,
+  `examples/led_monitor.py`.
+- **Gotchas that cost time:** (1) the host has a real display `:1` + RTX GPU —
+  use them, don't render to Xvfb; (2) GPU into Docker needs `--gpus all` +
+  `NVIDIA_DRIVER_CAPABILITIES=all`, not just `/dev/dri`; (3) the gz `/marker`
+  service reply type is `gz.msgs.Empty` (NOT `Boolean`); (4) gz-sim 8.11 GUI
+  does not repaint model materials at runtime → markers are the live path.
+- **Build integration TODO:** the plugin is built standalone via `plugins/CMakeLists.txt`
+  and needs `GZ_SIM_SYSTEM_PLUGIN_PATH` set by hand. Next: build it as part of
+  the package (ament_cmake or a colcon hook) and bake the path into the launch
+  files / `docker/sim/Dockerfile` so `ros2 launch` "just works".
+- **Other pending:** per-lab "Simulation" subsections in the BPC-PRP lab book
+  (T4.6); line.sdf real track geometry; ArUco / floor-tape decals.
 
 ## Corridor following (Lab 12)
 

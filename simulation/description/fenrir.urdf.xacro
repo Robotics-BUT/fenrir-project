@@ -469,6 +469,60 @@
   </gazebo>
 
   <!-- ============================================================== -->
+  <!--  RGB status LEDs (4×, on top: front / right / back / left)      -->
+  <!--                                                                 -->
+  <!--  Real Fenrir carries a 4-element NeoPixel strip on the chassis  -->
+  <!--  top, driven by /bpc_prp_robot/rgb_leds (UInt8MultiArray, 12    -->
+  <!--  values = 4 × RGB, each 0–255). In sim the 4 LEDs sit at the    -->
+  <!--  four edge midpoints of the top plate so each faces a compass   -->
+  <!--  direction; the data layout is left-to-right per LED:           -->
+  <!--      data[0:3]  -> front  (+x)                                   -->
+  <!--      data[3:6]  -> right  (-y)                                   -->
+  <!--      data[6:9]  -> back   (-x)                                   -->
+  <!--      data[9:12] -> left   (+y)                                   -->
+  <!--                                                                 -->
+  <!--  These links give the LEDs physical presence in the Gazebo      -->
+  <!--  scene. Live colour is rendered by the rgb_leds_bridge node as   -->
+  <!--  RViz markers overlaid at these same positions (gz-sim 8.11 has  -->
+  <!--  no runtime material-colour system).                            -->
+  <!-- ============================================================== -->
+  <xacro:property name="led_size"   value="0.020"/>
+  <xacro:property name="led_height" value="0.012"/>
+  <xacro:property name="led_offset" value="0.060"/>   <!-- centre -> edge -->
+  <xacro:property name="led_z"      value="${chassis_height + led_height/2.0}"/>
+
+  <xacro:macro name="rgb_led" params="name x y color:='0.12 0.12 0.12 1.0'">
+    <link name="led_${name}_link">
+      <!-- Visual name "led_${name}" is what the LedMaterialColor system
+           matches on to recolour this cube at runtime. `color` sets the
+           startup colour (overridden live by /bpc_prp_robot/rgb_leds). -->
+      <visual name="led_${name}">
+        <geometry><box size="${led_size} ${led_size} ${led_height}"/></geometry>
+        <material name="led_${name}_mat">
+          <color rgba="${color}"/>
+        </material>
+      </visual>
+      <xacro:box_inertia mass="0.002" x="${led_size}" y="${led_size}" z="${led_height}"/>
+    </link>
+    <joint name="led_${name}_joint" type="fixed">
+      <parent link="base_link"/>
+      <child  link="led_${name}_link"/>
+      <origin xyz="${x} ${y} ${led_z}" rpy="0 0 0"/>
+    </joint>
+    <!-- Keep the LED as its own link/visual (do not lump into base_link)
+         so the visual keeps a clean, matchable name in Gazebo. -->
+    <gazebo reference="led_${name}_joint">
+      <preserveFixedJoint>true</preserveFixedJoint>
+      <disableFixedJointLumping>true</disableFixedJointLumping>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:rgb_led name="front" x="${led_offset}"  y="0"/>
+  <xacro:rgb_led name="right" x="0"              y="${-led_offset}"/>
+  <xacro:rgb_led name="back"  x="${-led_offset}" y="0"/>
+  <xacro:rgb_led name="left"  x="0"              y="${led_offset}"/>
+
+  <!-- ============================================================== -->
   <!--  Diff-drive system plugin (Gazebo Harmonic gz::sim::systems)    -->
   <!--                                                                 -->
   <!--  Publishes the gz topic /model/fenrir/cmd_vel <- Twist input.   -->
@@ -503,6 +557,14 @@
       <topic>joint_states</topic>
       <joint_name>left_wheel_joint</joint_name>
       <joint_name>right_wheel_joint</joint_name>
+    </plugin>
+
+    <!-- Recolours the 4 LED cubes (led_front/right/back/left) at runtime
+         from gz.msgs.MaterialColor on /led_colors. The rgb_leds_bridge
+         node feeds it from /bpc_prp_robot/rgb_leds via ros_gz_bridge.
+         Needs libLedMaterialColor.so on GZ_SIM_SYSTEM_PLUGIN_PATH. -->
+    <plugin filename="LedMaterialColor" name="fenrir_sim::LedMaterialColor">
+      <topic>/led_colors</topic>
     </plugin>
   </gazebo>
 

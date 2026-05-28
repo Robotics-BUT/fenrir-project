@@ -53,6 +53,16 @@
   gz_type_name:   "gz.msgs.LaserScan"
   direction:      GZ_TO_ROS
 
+# ---- RGB LED colours (recolour the 4 LED cubes in the Gazebo scene) ---------
+# rgb_leds_bridge.py turns /bpc_prp_robot/rgb_leds into 4 MaterialColor
+# messages (one per LED, addressed by visual name) on /led_colors; the
+# LedMaterialColor gz-sim system applies them to the led_* cube visuals.
+- ros_topic_name: "/led_colors"
+  gz_topic_name:  "/led_colors"
+  ros_type_name:  "ros_gz_interfaces/msg/MaterialColor"
+  gz_type_name:   "gz.msgs.MaterialColor"
+  direction:      ROS_TO_GZ
+
 # ---- Camera (640x480, bgr8) -------------------------------------------------
 - ros_topic_name: "/bpc_prp_robot/camera"
   gz_topic_name:  "/camera"

@@ -1,21 +1,31 @@
 """rgb_leds_bridge — /bpc_prp_robot/rgb_leds → RViz MarkerArray + log.
 
-Closes the LED side of the /bpc_prp_robot/* contract in sim. There is no
-gz "RGB LED" actuator, so the bridge is a sink: it subscribes to the
-contract topic, logs the new triplets on change, and republishes 4
-SPHERE markers in `base_link` so the LED state is visible in RViz while
-developing.
+Closes the LED side of the /bpc_prp_robot/* contract in sim. The sim
+robot carries 4 RGB LEDs on top of the chassis, one at each edge
+midpoint, so each faces a compass direction:
+
+    front (+x), right (-y), back (-x), left (+y)
+
+The contract topic is a UInt8MultiArray of 12 values (4 LEDs × RGB,
+each 0–255), ordered left-to-right per LED:
+
+    data[0:3]   front  R,G,B
+    data[3:6]   right  R,G,B
+    data[6:9]   back   R,G,B
+    data[9:12]  left   R,G,B
+
+gz-sim 8.11 has no runtime material-colour system, so this node renders
+the live colours as 4 RViz SPHERE markers on `/sim/rgb_leds_markers`,
+placed in `base_link` at the same positions as the LED bodies in the
+URDF. Add a MarkerArray display on that topic in RViz to watch them.
 
 Real /bpc_prp_robot/rgb_leds
 (software/raspberry_pi/.../rgb_leds_handler/rgb_leds_handler.py):
-* `UInt8MultiArray`, data layout `[R0,G0,B0, R1,G1,B1, R2,G2,B2, R3,G3,B3]`
-* Iteration: `data[i*3 : i*3+3]` per LED i. Short arrays are accepted —
-  only the LEDs covered by the array are updated.
-* Hardware: 4-element NeoPixel strip on Pi GPIO 18.
-
-Sim positions the 4 markers in a row along the back edge of the chassis
-top (just below the lidar height). The mapping LED-i → y position
-mirrors the L-to-R convention used elsewhere in the codebase.
+* `UInt8MultiArray`, layout `[R0,G0,B0, R1,G1,B1, R2,G2,B2, R3,G3,B3]`.
+* Short arrays are accepted — only the LEDs covered by the array update;
+  uncovered LEDs keep their last value.
+* Hardware: 4-element NeoPixel strip on Pi GPIO 18. The front/right/back/
+  left mapping above is the sim's physical placement of strip indices 0–3.
 """
 
 from __future__ import annotations
@@ -24,22 +34,25 @@ from typing import List, Tuple
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import UInt8MultiArray
+from std_msgs.msg import ColorRGBA, UInt8MultiArray
 from visualization_msgs.msg import Marker, MarkerArray
+from ros_gz_interfaces.msg import Entity, MaterialColor
 
 
-NUM_LEDS = 4
+# LED index -> compass direction. Order matches the contract data layout.
+LED_NAMES = ["front", "right", "back", "left"]
+NUM_LEDS = len(LED_NAMES)
 
-# 4 LEDs along the back edge of the 15 cm chassis top, z=0.155
-# (chassis top is at z=0.150; lidar at 0.170). y from +0.060 (left) to
-# −0.060 (right) — L→R matches the [0..3] LED indexing.
+# Marker positions in base_link — must match the led_*_link origins in
+# description/fenrir.urdf.xacro (edge midpoints of the 15 cm chassis top,
+# led_z = chassis_height + led_height/2 = 0.150 + 0.006 = 0.156).
 LED_POSITIONS: List[Tuple[float, float, float]] = [
-    (-0.060, +0.060, 0.155),  # LED 0 — back-left
-    (-0.060, +0.020, 0.155),  # LED 1
-    (-0.060, -0.020, 0.155),  # LED 2
-    (-0.060, -0.060, 0.155),  # LED 3 — back-right
+    (+0.060, 0.000, 0.156),  # front (+x)
+    (0.000, -0.060, 0.156),  # right (-y)
+    (-0.060, 0.000, 0.156),  # back  (-x)
+    (0.000, +0.060, 0.156),  # left  (+y)
 ]
-MARKER_SPHERE_DIAM = 0.020  # m
+MARKER_SPHERE_DIAM = 0.022  # m — slightly larger than the 20 mm LED body
 
 
 class RgbLedsBridge(Node):
@@ -57,20 +70,24 @@ class RgbLedsBridge(Node):
             UInt8MultiArray, "/bpc_prp_robot/rgb_leds", self._on_leds, 1
         )
         self.pub = self.create_publisher(MarkerArray, marker_topic, 1)
+        # Per-LED colour for the Gazebo cubes: ros_gz_bridge forwards this to
+        # gz.msgs.MaterialColor, which the LedMaterialColor system applies to
+        # the led_* cube visuals on the robot model.
+        self.color_pub = self.create_publisher(MaterialColor, "/led_colors", 10)
 
         # Track the latest committed RGB per LED. Short messages from the
         # robot only update the covered LEDs; uncovered slots keep their
         # last value (matches real rgb_leds_handler.py behaviour).
         self.last: List[Tuple[int, int, int]] = [(0, 0, 0)] * NUM_LEDS
 
-        # Seed RViz with the all-off state so 4 dark markers appear
-        # immediately, before any student message arrives.
+        # Seed the all-off state so the markers and cubes start dark.
         self._publish_markers(self.last)
+        self._publish_material_colors(self.last)
 
         self.get_logger().info(
             "rgb_leds_bridge ready: /bpc_prp_robot/rgb_leds -> %s "
-            "(%d sphere markers in frame %r)"
-            % (marker_topic, NUM_LEDS, self.frame_id)
+            "(%d LEDs %s in frame %r)"
+            % (marker_topic, NUM_LEDS, "/".join(LED_NAMES), self.frame_id)
         )
 
     def _on_leds(self, msg: UInt8MultiArray) -> None:
@@ -85,9 +102,26 @@ class RgbLedsBridge(Node):
         if leds == self.last:
             return  # no change, skip publish + log
 
-        self.get_logger().info("rgb_leds = %s" % (leds,))
+        self.get_logger().info(
+            "rgb_leds = %s"
+            % ", ".join("%s=(%d,%d,%d)" % (LED_NAMES[i], *leds[i])
+                        for i in range(NUM_LEDS))
+        )
         self.last = leds
         self._publish_markers(leds)
+        self._publish_material_colors(leds)
+
+    def _publish_material_colors(self, leds: List[Tuple[int, int, int]]) -> None:
+        for i, (r, g, b) in enumerate(leds):
+            c = ColorRGBA(r=r / 255.0, g=g / 255.0, b=b / 255.0, a=1.0)
+            m = MaterialColor()
+            m.entity.name = "led_" + LED_NAMES[i]
+            m.entity.type = Entity.VISUAL
+            m.entity_match = MaterialColor.ALL
+            m.ambient = c
+            m.diffuse = c
+            m.emissive = c
+            self.color_pub.publish(m)
 
     def _publish_markers(self, leds: List[Tuple[int, int, int]]) -> None:
         out = MarkerArray()
